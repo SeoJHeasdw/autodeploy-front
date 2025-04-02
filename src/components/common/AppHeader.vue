@@ -1,161 +1,269 @@
 <template>
-    <header class="app-header">
-      <div class="container">
+  <header class="app-header">
+    <div class="container">
+      <div class="header-content">
         <div class="brand">
           <router-link to="/">
-            <h1>AutoDeploy</h1>
+            <div class="logo d-flex align-items-center">
+              <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 2L3 9L16 16L29 9L16 2Z" fill="var(--primary)"/>
+                <path d="M3 23L16 30L29 23V9L16 16L3 9V23Z" fill="var(--primary-light)" fill-opacity="0.7"/>
+              </svg>
+              <h1>AutoDeploy</h1>
+            </div>
           </router-link>
         </div>
         
         <nav class="main-nav">
           <ul>
             <li>
-              <router-link to="/" exact>대시보드</router-link>
+              <router-link to="/" exact class="nav-link">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>대시보드</span>
+              </router-link>
             </li>
             <li>
-              <router-link to="/requirements">요구사항</router-link>
+              <router-link to="/requirements" class="nav-link">
+                <i class="fas fa-clipboard-list"></i>
+                <span>요구사항</span>
+              </router-link>
             </li>
             <li>
-              <router-link to="/deployments">배포 관리</router-link>
+              <router-link to="/deployments" class="nav-link">
+                <i class="fas fa-rocket"></i>
+                <span>배포 관리</span>
+              </router-link>
             </li>
           </ul>
         </nav>
         
         <div class="actions">
-          <button class="btn-action">
+          <div class="dropdown hide-mobile">
+            <button class="btn btn-ghost btn-icon">
+              <i class="fas fa-bell"></i>
+            </button>
+          </div>
+          
+          <router-link to="/requirements/new" class="btn btn-primary btn-icon">
             <i class="fas fa-plus"></i>
             <span>새 요구사항</span>
-          </button>
+          </router-link>
         </div>
+        
+        <!-- 모바일 메뉴 토글 버튼 -->
+        <button class="mobile-toggle hide-desktop" @click="toggleMobileMenu">
+          <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
+        </button>
       </div>
-    </header>
-  </template>
-  
-  <script setup>
-  // 필요한 경우 여기에 스크립트 로직 추가
-  </script>
-  
-  <style scoped>
-  .app-header {
-    background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    padding: 1rem 0;
-  }
-  
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .brand a {
-    text-decoration: none;
-    color: #333;
-  }
-  
-  .brand h1 {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
-  }
-  
-  .main-nav ul {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .main-nav li {
-    margin-right: 1.5rem;
-  }
-  
-  .main-nav a {
-    text-decoration: none;
-    color: #555;
-    font-weight: 500;
-    padding: 0.5rem 0;
-    position: relative;
-  }
-  
-  .main-nav a:hover {
-    color: #4CAF50;
-  }
-  
-  .main-nav a.router-link-active {
-    color: #4CAF50;
-  }
-  
-  .main-nav a.router-link-active::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background-color: #4CAF50;
-  }
-  
-  .actions {
-    display: flex;
-    align-items: center;
-  }
-  
-  .btn-action {
-    display: flex;
-    align-items: center;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    background-color: #4CAF50;
-    color: white;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .btn-action:hover {
-    background-color: #45a049;
-  }
-  
-  .btn-action i {
-    margin-right: 0.5rem;
-  }
-  
-  @media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-      align-items: flex-start;
-    }
+    </div>
     
-    .brand {
-      margin-bottom: 1rem;
-    }
-    
-    .main-nav {
-      width: 100%;
-      margin-bottom: 1rem;
-    }
-    
-    .main-nav ul {
-      flex-direction: column;
-    }
-    
-    .main-nav li {
-      margin-right: 0;
-      margin-bottom: 0.5rem;
-    }
-    
-    .actions {
-      width: 100%;
-    }
-    
-    .btn-action {
-      width: 100%;
-      justify-content: center;
-    }
+    <!-- 모바일 메뉴 -->
+    <div class="mobile-menu" :class="{ 'open': mobileMenuOpen }">
+      <nav>
+        <ul>
+          <li>
+            <router-link to="/" exact class="nav-link" @click="toggleMobileMenu">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>대시보드</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/requirements" class="nav-link" @click="toggleMobileMenu">
+              <i class="fas fa-clipboard-list"></i>
+              <span>요구사항</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/deployments" class="nav-link" @click="toggleMobileMenu">
+              <i class="fas fa-rocket"></i>
+              <span>배포 관리</span>
+            </router-link>
+          </li>
+          <li>
+            <router-link to="/requirements/new" class="nav-link" @click="toggleMobileMenu">
+              <i class="fas fa-plus"></i>
+              <span>새 요구사항</span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+const mobileMenuOpen = ref(false);
+
+const toggleMobileMenu = () => {
+  mobileMenuOpen.value = !mobileMenuOpen.value;
+  
+  // 모바일 메뉴가 열려있을 때 스크롤 방지
+  if (mobileMenuOpen.value) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
   }
-  </style>
+};
+</script>
+
+<style scoped>
+.app-header {
+  position: sticky;
+  top: 0;
+  background-color: var(--white);
+  box-shadow: var(--shadow-sm);
+  z-index: 100;
+  padding: 0.75rem 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand a {
+  text-decoration: none;
+  color: var(--gray-900);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.main-nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--gray-700);
+  font-weight: 500;
+  padding: 0.5rem 0.25rem;
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.nav-link i {
+  font-size: 1rem;
+}
+
+.nav-link:hover {
+  color: var(--primary);
+}
+
+.nav-link.router-link-active {
+  color: var(--primary);
+}
+
+.nav-link.router-link-active::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--primary);
+  border-radius: var(--radius-full);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 모바일 메뉴 토글 버튼 */
+.mobile-toggle {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.mobile-toggle:hover {
+  background-color: var(--gray-100);
+}
+
+/* 모바일 메뉴 */
+.mobile-menu {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--white);
+  z-index: 99;
+  transform: translateX(100%);
+  transition: transform var(--transition-normal);
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.mobile-menu.open {
+  transform: translateX(0);
+}
+
+.mobile-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobile-menu .nav-link {
+  display: flex;
+  padding: 1rem 0.5rem;
+  font-size: 1.125rem;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.mobile-menu .nav-link i {
+  width: 24px;
+  margin-right: 0.75rem;
+}
+
+@media (max-width: 768px) {
+  .main-nav {
+    display: none;
+  }
+}
+</style>
