@@ -1,6 +1,7 @@
 // src/store/modules/requirement.ts
 import { defineStore } from 'pinia';
-import mockService, { Requirement, QueryParams } from '@/services/mockService';
+import mockService from '@/services/mockService';
+import type { Requirement, QueryParams } from '@/services/mockService';
 
 interface RequirementState {
   requirements: Requirement[];
@@ -68,10 +69,23 @@ export const useRequirementStore = defineStore('requirement', {
         const queryParams = {
           page: this.pagination.page,
           pageSize: this.pagination.pageSize,
-          ...this.filters,
           ...params
         };
         
+        // status가 null이 아닐 때만 추가
+        if (this.filters.status !== null) {
+          queryParams.status = this.filters.status;
+        }
+
+        // priority가 null이 아닐 때만 추가
+        if (this.filters.priority !== null) {
+          queryParams.priority = this.filters.priority;
+        }
+
+        // search 추가
+        if (this.filters.search) {
+          queryParams.search = this.filters.search;
+        }
         // mockService 사용
         const data = await mockService.getRequirements(queryParams);
         
