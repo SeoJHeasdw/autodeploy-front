@@ -131,6 +131,22 @@ export const useDeploymentStore = defineStore('deployment', {
         throw error;
       }
     },
+
+    /**
+     * 워크플로우 상태 가져오기
+     * @param {string} deploymentId - 배포 ID
+     */
+    async getWorkflowStatus(deploymentId) {
+      if (!deploymentId) return null;
+      
+      try {
+        const workflowStatus = await deploymentService.getWorkflowStatus(deploymentId);
+        return workflowStatus;
+      } catch (error) {
+        console.error('워크플로우 상태를 가져오는 중 오류 발생:', error);
+        return null;
+      }
+    },
     
     clearCurrentDeployment() {
       this.currentDeploymentId = null;

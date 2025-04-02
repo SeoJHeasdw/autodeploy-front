@@ -12,6 +12,9 @@
         </div>
       </div>
       
+      <!-- 워크플로우 다이어그램 추가 -->
+      <WorkflowDiagram class="mb-5" />
+
       <!-- 로딩 상태 -->
       <div v-if="isLoading" class="loading-container">
         <div class="spinner"></div>
@@ -314,6 +317,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRequirementStore } from '@/store/modules/requirement';
 import { useDeploymentStore } from '@/store/modules/deployment';
+import WorkflowDiagram from '@/components/common/WorkflowDiagram.vue'; // 워크플로우 다이어그램 컴포넌트 추가
 
 const router = useRouter();
 const requirementStore = useRequirementStore();

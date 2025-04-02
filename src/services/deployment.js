@@ -71,6 +71,29 @@ export const deploymentService = {
       throw error;
     }
   },
+
+  /**
+   * 현재 워크플로우 단계 상태 가져오기
+   * @param {string} deploymentId - 배포 ID
+   * @returns {Object} 워크플로우 단계별 상태 객체
+   */
+  async getWorkflowStatus(deploymentId) {
+    try {
+      const response = await api.get(`/deployments/${deploymentId}/workflow`);
+      return response.data;
+    } catch (error) {
+      console.error(`배포 ID ${deploymentId}의 워크플로우 상태를 가져오는데 실패했습니다:`, error);
+      
+      // API가 없는 경우 목업 데이터 반환 (개발용)
+      return {
+        requirement: 'completed',
+        sourceCode: 'in-progress', 
+        cicd: 'pending',
+        deployment: 'pending'
+      };
+    }
+  },
+
 };
 
 // WebSocket 서비스 설정 예시

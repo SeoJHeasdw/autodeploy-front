@@ -1,6 +1,9 @@
 import { createApp } from 'vue'
 import './style.css'
-import './assets/main.css'  // 이 라인 추가
+import './assets/main.css'
 import App from './App.vue'
+import router from './router' 
 
-createApp(App).mount('#app')
+const app = createApp(App)
+app.use(router)  
+app.mount('#app')
