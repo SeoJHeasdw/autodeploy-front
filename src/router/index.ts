@@ -41,6 +41,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { title: '배포 상세' }
   },
   {
+    path: '/analytics',
+    name: 'Analytics',
+    component: () => import('@/views/Analytics.vue'),
+    meta: { title: '분석 및 통계' }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/Settings.vue'),
+    meta: { title: '시스템 설정' }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('@/views/NotFound.vue'),

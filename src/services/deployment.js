@@ -22,7 +22,7 @@ export const deploymentService = {
    */
   async getDeploymentById(deploymentId) {
     try {
-      const response = await api.get(`/deployments/${deploymentId}`);
+      const response = await api.npget(`/deployments/${deploymentId}`);
       return response.data;
     } catch (error) {
       console.error(`배포 ID ${deploymentId}의 정보를 가져오는데 실패했습니다:`, error);

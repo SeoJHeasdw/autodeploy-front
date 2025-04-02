@@ -22,10 +22,11 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
 .app-container {
   display: flex;
   min-height: 100vh;
+  width: 100%;
   background-color: var(--background);
 }
 
@@ -33,13 +34,15 @@ onMounted(() => {
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* 필요한 경우 내용이 넘치지 않도록 함 */
+  width: 100%;
+  min-width: 0; /* 내용이 넘치지 않도록 함 */
+  overflow-x: hidden;
 }
 
 .main-content {
   flex: 1;
   padding: 1.5rem;
-  overflow-x: hidden;
+  width: 100%;
 }
 
 @media (max-width: 768px) {

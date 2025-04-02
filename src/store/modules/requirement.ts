@@ -1,83 +1,26 @@
-// src/store/modules/requirement.js
+// src/store/modules/requirement.ts
 import { defineStore } from 'pinia';
-import api from '@/services/api';
+import mockService, { Requirement, QueryParams } from '@/services/mockService';
 
-// 요구사항 관련 API 서비스
-const requirementService = {
-  /**
-   * 요구사항 목록 가져오기
-   * @param {Object} params - 페이지네이션 및 필터링 파라미터
-   */
-  async getRequirements(params) {
-    try {
-      const response = await api.get('/requirements', { params });
-      return response.data;
-    } catch (error) {
-      console.error('요구사항 목록을 가져오는데 실패했습니다:', error);
-      throw error;
-    }
-  },
-  
-  /**
-   * 특정 ID의 요구사항 상세 가져오기
-   * @param {string} id - 요구사항 ID
-   */
-  async getRequirementById(id) {
-    try {
-      const response = await api.get(`/requirements/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`요구사항 ID ${id}의 상세 정보를 가져오는데 실패했습니다:`, error);
-      throw error;
-    }
-  },
-  
-  /**
-   * 새 요구사항 제출
-   * @param {Object} requirementData - 요구사항 데이터
-   */
-  async submitRequirement(requirementData) {
-    try {
-      const response = await api.post('/requirements', requirementData);
-      return response.data;
-    } catch (error) {
-      console.error('요구사항 제출에 실패했습니다:', error);
-      throw error;
-    }
-  },
-  
-  /**
-   * 요구사항 수정
-   * @param {string} id - 요구사항 ID
-   * @param {Object} requirementData - 수정할 요구사항 데이터
-   */
-  async updateRequirement(id, requirementData) {
-    try {
-      const response = await api.put(`/requirements/${id}`, requirementData);
-      return response.data;
-    } catch (error) {
-      console.error(`요구사항 ID ${id}를 수정하는데 실패했습니다:`, error);
-      throw error;
-    }
-  },
-  
-  /**
-   * 요구사항 삭제
-   * @param {string} id - 요구사항 ID
-   */
-  async deleteRequirement(id) {
-    try {
-      const response = await api.delete(`/requirements/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error(`요구사항 ID ${id}를 삭제하는데 실패했습니다:`, error);
-      throw error;
-    }
-  }
-};
+interface RequirementState {
+  requirements: Requirement[];
+  currentRequirement: Requirement | null;
+  isLoading: boolean;
+  error: string | null;
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+  };
+  filters: {
+    status: string | null;
+    priority: string | null;
+    search: string;
+  };
+}
 
 export const useRequirementStore = defineStore('requirement', {
-  state: () => ({
+  state: (): RequirementState => ({
     requirements: [],
     currentRequirement: null,
     isLoading: false,
@@ -96,7 +39,7 @@ export const useRequirementStore = defineStore('requirement', {
   
   getters: {
     // 우선순위별 요구사항 필터링
-    requirementsByPriority: (state) => (priority) => {
+    requirementsByPriority: (state) => (priority: string) => {
       return state.requirements.filter(req => req.priority === priority);
     },
     
@@ -116,7 +59,7 @@ export const useRequirementStore = defineStore('requirement', {
      * 요구사항 목록 가져오기
      * @param {Object} params - 페이지네이션 및 필터링 파라미터
      */
-    async fetchRequirements(params = {}) {
+    async fetchRequirements(params: Partial<QueryParams> = {}) {
       this.isLoading = true;
       this.error = null;
       
@@ -129,7 +72,8 @@ export const useRequirementStore = defineStore('requirement', {
           ...params
         };
         
-        const data = await requirementService.getRequirements(queryParams);
+        // mockService 사용
+        const data = await mockService.getRequirements(queryParams);
         
         this.requirements = data.items || [];
         this.pagination = {
@@ -140,7 +84,7 @@ export const useRequirementStore = defineStore('requirement', {
         
         return this.requirements;
       } catch (error) {
-        this.error = error.message || '요구사항 목록을 가져오는데 실패했습니다.';
+        this.error = error instanceof Error ? error.message : '요구사항 목록을 가져오는데 실패했습니다.';
         throw error;
       } finally {
         this.isLoading = false;
@@ -151,16 +95,17 @@ export const useRequirementStore = defineStore('requirement', {
      * 특정 ID의 요구사항 상세 가져오기
      * @param {string} id - 요구사항 ID
      */
-    async fetchRequirementById(id) {
+    async fetchRequirementById(id: string) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const requirement = await requirementService.getRequirementById(id);
+        // mockService 사용
+        const requirement = await mockService.getRequirementById(id);
         this.currentRequirement = requirement;
         return requirement;
       } catch (error) {
-        this.error = error.message || '요구사항 상세 정보를 가져오는데 실패했습니다.';
+        this.error = error instanceof Error ? error.message : '요구사항 상세 정보를 가져오는데 실패했습니다.';
         throw error;
       } finally {
         this.isLoading = false;
@@ -171,12 +116,13 @@ export const useRequirementStore = defineStore('requirement', {
      * 새 요구사항 제출
      * @param {Object} requirementData - 요구사항 데이터
      */
-    async submitRequirement(requirementData) {
+    async submitRequirement(requirementData: Partial<Requirement>) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const newRequirement = await requirementService.submitRequirement(requirementData);
+        // mockService 사용
+        const newRequirement = await mockService.submitRequirement(requirementData);
         
         // 새 요구사항을 목록에 추가
         this.requirements.unshift(newRequirement);
@@ -184,7 +130,7 @@ export const useRequirementStore = defineStore('requirement', {
         
         return newRequirement;
       } catch (error) {
-        this.error = error.message || '요구사항 제출에 실패했습니다.';
+        this.error = error instanceof Error ? error.message : '요구사항 제출에 실패했습니다.';
         throw error;
       } finally {
         this.isLoading = false;
@@ -196,12 +142,13 @@ export const useRequirementStore = defineStore('requirement', {
      * @param {string} id - 요구사항 ID
      * @param {Object} requirementData - 수정할 요구사항 데이터
      */
-    async updateRequirement(id, requirementData) {
+    async updateRequirement(id: string, requirementData: Partial<Requirement>) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        const updatedRequirement = await requirementService.updateRequirement(id, requirementData);
+        // mockService 사용
+        const updatedRequirement = await mockService.updateRequirement(id, requirementData);
         
         // 목록에서 해당 요구사항 업데이트
         const index = this.requirements.findIndex(req => req.id === id);
@@ -216,7 +163,7 @@ export const useRequirementStore = defineStore('requirement', {
         
         return updatedRequirement;
       } catch (error) {
-        this.error = error.message || '요구사항 수정에 실패했습니다.';
+        this.error = error instanceof Error ? error.message : '요구사항 수정에 실패했습니다.';
         throw error;
       } finally {
         this.isLoading = false;
@@ -227,12 +174,13 @@ export const useRequirementStore = defineStore('requirement', {
      * 요구사항 삭제
      * @param {string} id - 요구사항 ID
      */
-    async deleteRequirement(id) {
+    async deleteRequirement(id: string) {
       this.isLoading = true;
       this.error = null;
       
       try {
-        await requirementService.deleteRequirement(id);
+        // mockService 사용
+        await mockService.deleteRequirement(id);
         
         // 목록에서 해당 요구사항 제거
         this.requirements = this.requirements.filter(req => req.id !== id);
@@ -245,7 +193,7 @@ export const useRequirementStore = defineStore('requirement', {
         
         return true;
       } catch (error) {
-        this.error = error.message || '요구사항 삭제에 실패했습니다.';
+        this.error = error instanceof Error ? error.message : '요구사항 삭제에 실패했습니다.';
         throw error;
       } finally {
         this.isLoading = false;
@@ -256,7 +204,7 @@ export const useRequirementStore = defineStore('requirement', {
      * 필터 설정
      * @param {Object} filters - 적용할 필터 객체
      */
-    setFilters(filters) {
+    setFilters(filters: Partial<RequirementState['filters']>) {
       this.filters = { ...this.filters, ...filters };
     },
     
@@ -264,7 +212,7 @@ export const useRequirementStore = defineStore('requirement', {
      * 페이지네이션 설정
      * @param {Object} pagination - 페이지네이션 객체
      */
-    setPagination(pagination) {
+    setPagination(pagination: Partial<RequirementState['pagination']>) {
       this.pagination = { ...this.pagination, ...pagination };
     },
     

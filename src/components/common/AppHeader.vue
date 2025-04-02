@@ -134,7 +134,7 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
+<style>
 .app-header {
   padding: 1rem 1.5rem;
   background-color: var(--white);
@@ -146,6 +146,7 @@ onMounted(() => {
   position: sticky;
   top: 0;
   z-index: 10;
+  width: 100%;
 }
 
 .header-left, .header-right {
