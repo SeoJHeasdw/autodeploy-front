@@ -27,14 +27,36 @@ src/
 ├── assets/            # 정적 리소스 (이미지, 폰트 등)
 ├── components/        # 재사용 가능한 컴포넌트
 │   ├── common/        # 공통 컴포넌트
+│   │   ├── AppHeader.vue
+│   │   ├── AppFooter.vue
+│   │   ├── ProgressBar.vue
+│   │   └── ...
 │   ├── requirements/  # 요구사항 관련 컴포넌트
+│   │   ├── RequirementForm.vue
+│   │   ├── RequirementList.vue
+│   │   └── ...
 │   └── deployment/    # 배포 관련 컴포넌트
+│       ├── DeploymentStatus.vue
+│       ├── DeploymentSteps.vue
+│       └── ...
 ├── views/             # 페이지 컴포넌트
+│   ├── Home.vue
+│   ├── Requirements.vue
+│   ├── Deployment.vue
+│   └── ...
 ├── router/            # Vue Router 설정
-├── store/             # Pinia 상태 관리
+│   └── index.js
+├── store/             # Pinia/Vuex 상태 관리
 │   ├── modules/
+│   │   ├── requirement.js
+│   │   ├── deployment.js
+│   │   └── ...
 │   └── index.js
 ├── services/          # API 호출 및 서비스 로직
+│   ├── api.js         # Axios 설정 및 인터셉터
+│   ├── requirements.js
+│   ├── deployment.js
+│   └── ...
 ├── utils/             # 유틸리티 함수
 ├── constants/         # 상수 정의
 └── App.vue            # 루트 컴포넌트
@@ -120,6 +142,6 @@ VITE_WS_BASE_URL=ws://localhost:8080/ws
 
 ## 연락처
 
-프로젝트 관리자 - [your-email@example.com](mailto:your-email@example.com)
+프로젝트 관리자 - [dngktjd@gamil.com](mailto:dngktjd@gmail.com)
 
-프로젝트 링크: [https://github.com/your-username/automated-cicd-frontend](https://github.com/your-username/automated-cicd-frontend)
+프로젝트 링크: [https://github.com/SeoJHeasdw/autodeploy-frontend](https://github.com/SeoJHeasdw/autodeploy-frontend)

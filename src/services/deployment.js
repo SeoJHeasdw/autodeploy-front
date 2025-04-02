@@ -1,0 +1,197 @@
+// src/services/deployment.js
+import api from './api';
+
+// 배포 관련 API 서비스
+export const deploymentService = {
+  /**
+   * 최신 배포 정보 가져오기
+   */
+  async getLatestDeployment() {
+    try {
+      const response = await api.get('/deployments/latest');
+      return response.data;
+    } catch (error) {
+      console.error('최신 배포 정보를 가져오는데 실패했습니다:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * 특정 ID의 배포 정보 가져오기
+   * @param {string} deploymentId - 배포 ID
+   */
+  async getDeploymentById(deploymentId) {
+    try {
+      const response = await api.get(`/deployments/${deploymentId}`);
+      return response.data;
+    } catch (error) {
+      console.error(`배포 ID ${deploymentId}의 정보를 가져오는데 실패했습니다:`, error);
+      throw error;
+    }
+  },
+  
+  /**
+   * 새 요구사항에 대한 배포 시작
+   * @param {string} requirementId - 요구사항 ID
+   */
+  async startDeployment(requirementId) {
+    try {
+      const response = await api.post('/deployments', { requirementId });
+      return response.data;
+    } catch (error) {
+      console.error('배포를 시작하는데 실패했습니다:', error);
+      throw error;
+    }
+  },
+  
+  /**
+   * 진행 중인 배포 취소
+   * @param {string} deploymentId - 배포 ID
+   */
+  async cancelDeployment(deploymentId) {
+    try {
+      const response = await api.post(`/deployments/${deploymentId}/cancel`);
+      return response.data;
+    } catch (error) {
+      console.error(`배포 ID ${deploymentId}를 취소하는데 실패했습니다:`, error);
+      throw error;
+    }
+  },
+  
+  /**
+   * 배포 상태 수동 폴링 (WebSocket이 없는 경우)
+   * @param {string} deploymentId - 배포 ID
+   */
+  async pollDeploymentStatus(deploymentId) {
+    try {
+      const response = await api.get(`/deployments/${deploymentId}/status`);
+      return response.data;
+    } catch (error) {
+      console.error(`배포 ID ${deploymentId}의 상태를 폴링하는데 실패했습니다:`, error);
+      throw error;
+    }
+  },
+};
+
+// WebSocket 서비스 설정 예시
+export const setupDeploymentWebSocket = (store) => {
+  // WebSocket 연결 설정
+  const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const wsUrl = `${wsProtocol}//${window.location.host}/api/ws/deployments`;
+  
+  const socket = new WebSocket(wsUrl);
+  
+  socket.onopen = () => {
+    console.log('WebSocket 연결이 성공적으로 열렸습니다');
+    
+    // 현재 활성화된 배포 ID가 있으면 해당 배포의 업데이트 구독
+    if (store.currentDeploymentId) {
+      socket.send(JSON.stringify({
+        type: 'subscribe',
+        deploymentId: store.currentDeploymentId
+      }));
+    }
+  };
+  
+  socket.onmessage = (event) => {
+    try {
+      const data = JSON.parse(event.data);
+      
+      // 메시지 타입에 따른 처리
+      switch (data.type) {
+        case 'deployment_update':
+          // 배포 상태 업데이트 처리
+          store.updateDeploymentStatus(data.deploymentId, data.payload);
+          break;
+          
+        case 'deployment_completed':
+          // 배포 완료 처리
+          store.updateDeploymentStatus(data.deploymentId, {
+            status: 'completed',
+            overallProgress: 100,
+            completedAt: new Date().toISOString()
+          });
+          break;
+          
+        case 'deployment_failed':
+          // 배포 실패 처리
+          store.updateDeploymentStatus(data.deploymentId, {
+            status: 'failed',
+            error: data.error,
+            failedAt: new Date().toISOString()
+          });
+          break;
+          
+        case 'deployment_step_update':
+          // 개별 단계 업데이트 처리
+          const deployment = store.deployments[data.deploymentId];
+          if (deployment && deployment.steps) {
+            const stepIndex = deployment.steps.findIndex(step => step.id === data.stepId);
+            if (stepIndex !== -1) {
+              const updatedSteps = [...deployment.steps];
+              updatedSteps[stepIndex] = {
+                ...updatedSteps[stepIndex],
+                ...data.payload
+              };
+              
+              store.updateDeploymentStatus(data.deploymentId, {
+                steps: updatedSteps
+              });
+            }
+          }
+          break;
+          
+        case 'log_update':
+          // 로그 업데이트 처리
+          const currentDeployment = store.deployments[data.deploymentId];
+          if (currentDeployment) {
+            const logs = currentDeployment.logs || [];
+            store.updateDeploymentStatus(data.deploymentId, {
+              logs: [...logs, data.logMessage]
+            });
+          }
+          break;
+      }
+    } catch (error) {
+      console.error('WebSocket 메시지 처리 중 오류 발생:', error);
+    }
+  };
+  
+  socket.onerror = (error) => {
+    console.error('WebSocket 오류:', error);
+  };
+  
+  socket.onclose = () => {
+    console.log('WebSocket 연결이 닫혔습니다');
+    // 연결이 끊어지면 일정 시간 후 재연결 시도
+    setTimeout(() => setupDeploymentWebSocket(store), 5000);
+  };
+  
+  // WebSocket 서비스 관련 함수들 반환
+  return {
+    // 특정 배포 업데이트 구독
+    subscribeToDeployment: (deploymentId) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: 'subscribe',
+          deploymentId
+        }));
+      }
+    },
+    
+    // 배포 구독 취소
+    unsubscribeFromDeployment: (deploymentId) => {
+      if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify({
+          type: 'unsubscribe',
+          deploymentId
+        }));
+      }
+    },
+    
+    // WebSocket 연결 종료
+    closeConnection: () => {
+      socket.close();
+    }
+  };
+};
