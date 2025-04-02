@@ -1,3 +1,196 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useRequirementStore } from '@/store/modules/requirement';
+import { useDeploymentStore } from '@/store/modules/deployment';
+import WorkflowDiagram from '@/components/common/WorkflowDiagram.vue'; // 워크플로우 다이어그램 컴포넌트 추가
+
+const router = useRouter();
+const requirementStore = useRequirementStore();
+const deploymentStore = useDeploymentStore();
+
+// 상태
+const isLoading = ref(true);
+const activeDeploymentsIncreased = ref(true);
+const activeDeploymentsChange = ref(15);
+
+// 컴포넌트 마운트 시 데이터 로드
+onMounted(async () => {
+  try {
+    await Promise.all([
+      requirementStore.fetchRequirements(),
+      deploymentStore.fetchLatestDeployment()
+    ]);
+  } catch (error) {
+    console.error('데이터 로딩 중 오류 발생:', error);
+  } finally {
+    isLoading.value = false;
+  }
+});
+
+// 최근 요구사항 목록
+const recentRequirements = computed(() => {
+  return requirementStore.requirements.slice(0, 4);
+});
+
+// 최근 배포 목록
+const recentDeployments = computed(() => {
+  return deploymentStore.recentDeployments?.slice(0, 4) || [];
+});
+
+// 활성화된 배포 여부
+const hasActiveDeployment = computed(() => {
+  return deploymentStore.activeDeployments?.length > 0;
+});
+
+// 진행 중인 배포 작업
+const activeDeployments = computed(() => {
+  return deploymentStore.activeDeployments || [];
+});
+
+// 완료된 배포 작업
+const completedDeployments = computed(() => {
+  return deploymentStore.completedDeployments || [];
+});
+
+// 실패한 배포 작업
+const failedDeployments = computed(() => {
+  return deploymentStore.failedDeployments || [];
+});
+
+// 평균 배포 소요 시간
+const avgDeploymentTime = computed(() => {
+  return deploymentStore.averageDeploymentTime || '25분';
+});
+
+// 텍스트 자르기
+const truncateText = (text, maxLength) => {
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return text.slice(0, maxLength) + '...';
+};
+
+// 날짜 형식화
+const formatDate = (dateString) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
+};
+
+// 경과 시간 형식화
+const formatTimeAgo = (dateString) => {
+  if (!dateString) return '';
+  
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffTime = Math.abs(now - date);
+  const diffMinutes = Math.floor(diffTime / (1000 * 60));
+  
+  if (diffMinutes < 1) return '방금 전';
+  if (diffMinutes < 60) return `${diffMinutes}분 전`;
+  
+  const diffHours = Math.floor(diffMinutes / 60);
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  
+  const diffDays = Math.floor(diffHours / 24);
+  if (diffDays < 30) return `${diffDays}일 전`;
+  
+  const diffMonths = Math.floor(diffDays / 30);
+  return `${diffMonths}개월 전`;
+};
+
+// 우선순위 클래스
+const getPriorityClass = (priority) => {
+  if (!priority) return '';
+  
+  switch (priority.toLowerCase()) {
+    case 'high':
+      return 'status-error';
+    case 'medium':
+      return 'status-warning';
+    case 'low':
+      return 'status-success';
+    default:
+      return '';
+  }
+};
+
+// 우선순위 텍스트
+const getPriorityText = (priority) => {
+  if (!priority) return '';
+  
+  switch (priority.toLowerCase()) {
+    case 'high':
+      return '높음';
+    case 'medium':
+      return '중간';
+    case 'low':
+      return '낮음';
+    default:
+      return priority;
+  }
+};
+
+// 배포 상태 클래스
+const getDeploymentStatusClass = (status) => {
+  if (!status) return '';
+  
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return 'status-success';
+    case 'in-progress':
+      return 'status-info';
+    case 'failed':
+      return 'status-error';
+    default:
+      return 'status-pending';
+  }
+};
+
+// 배포 상태 텍스트
+const getDeploymentStatusText = (status) => {
+  if (!status) return '알 수 없음';
+  
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return '완료됨';
+    case 'in-progress':
+      return '진행 중';
+    case 'failed':
+      return '실패';
+    case 'pending':
+      return '대기 중';
+    case 'cancelled':
+      return '취소됨';
+    default:
+      return status;
+  }
+};
+
+// 라우팅 함수
+const navigateToRequirements = () => {
+  router.push('/requirements');
+};
+
+const viewRequirement = (requirementId) => {
+  router.push(`/requirements/${requirementId}`);
+};
+
+const viewDeployment = (deploymentId) => {
+  router.push(`/deployments/${deploymentId}`);
+};
+
+// 배포 시작
+const startDeployment = async (requirementId) => {
+  try {
+    await deploymentStore.startDeployment(requirementId);
+    router.push(`/deployments/${deploymentStore.currentDeploymentId}`);
+  } catch (error) {
+    console.error('배포 시작 중 오류 발생:', error);
+  }
+};
+</script>
+
 <template>
   <div class="dashboard">
     <div class="container">
@@ -312,198 +505,6 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useRequirementStore } from '@/store/modules/requirement';
-import { useDeploymentStore } from '@/store/modules/deployment';
-import WorkflowDiagram from '@/components/common/WorkflowDiagram.vue'; // 워크플로우 다이어그램 컴포넌트 추가
-
-const router = useRouter();
-const requirementStore = useRequirementStore();
-const deploymentStore = useDeploymentStore();
-
-// 상태
-const isLoading = ref(true);
-const activeDeploymentsIncreased = ref(true);
-const activeDeploymentsChange = ref(15);
-
-// 컴포넌트 마운트 시 데이터 로드
-onMounted(async () => {
-  try {
-    await Promise.all([
-      requirementStore.fetchRequirements(),
-      deploymentStore.fetchLatestDeployment()
-    ]);
-  } catch (error) {
-    console.error('데이터 로딩 중 오류 발생:', error);
-  } finally {
-    isLoading.value = false;
-  }
-});
-
-// 최근 요구사항 목록
-const recentRequirements = computed(() => {
-  return requirementStore.requirements.slice(0, 4);
-});
-
-// 최근 배포 목록
-const recentDeployments = computed(() => {
-  return deploymentStore.recentDeployments?.slice(0, 4) || [];
-});
-
-// 활성화된 배포 여부
-const hasActiveDeployment = computed(() => {
-  return deploymentStore.activeDeployments?.length > 0;
-});
-
-// 진행 중인 배포 작업
-const activeDeployments = computed(() => {
-  return deploymentStore.activeDeployments || [];
-});
-
-// 완료된 배포 작업
-const completedDeployments = computed(() => {
-  return deploymentStore.completedDeployments || [];
-});
-
-// 실패한 배포 작업
-const failedDeployments = computed(() => {
-  return deploymentStore.failedDeployments || [];
-});
-
-// 평균 배포 소요 시간
-const avgDeploymentTime = computed(() => {
-  return deploymentStore.averageDeploymentTime || '25분';
-});
-
-// 텍스트 자르기
-const truncateText = (text, maxLength) => {
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return text.slice(0, maxLength) + '...';
-};
-
-// 날짜 형식화
-const formatDate = (dateString) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric' });
-};
-
-// 경과 시간 형식화
-const formatTimeAgo = (dateString) => {
-  if (!dateString) return '';
-  
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = Math.abs(now - date);
-  const diffMinutes = Math.floor(diffTime / (1000 * 60));
-  
-  if (diffMinutes < 1) return '방금 전';
-  if (diffMinutes < 60) return `${diffMinutes}분 전`;
-  
-  const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  
-  const diffDays = Math.floor(diffHours / 24);
-  if (diffDays < 30) return `${diffDays}일 전`;
-  
-  const diffMonths = Math.floor(diffDays / 30);
-  return `${diffMonths}개월 전`;
-};
-
-// 우선순위 클래스
-const getPriorityClass = (priority) => {
-  if (!priority) return '';
-  
-  switch (priority.toLowerCase()) {
-    case 'high':
-      return 'status-error';
-    case 'medium':
-      return 'status-warning';
-    case 'low':
-      return 'status-success';
-    default:
-      return '';
-  }
-};
-
-// 우선순위 텍스트
-const getPriorityText = (priority) => {
-  if (!priority) return '';
-  
-  switch (priority.toLowerCase()) {
-    case 'high':
-      return '높음';
-    case 'medium':
-      return '중간';
-    case 'low':
-      return '낮음';
-    default:
-      return priority;
-  }
-};
-
-// 배포 상태 클래스
-const getDeploymentStatusClass = (status) => {
-  if (!status) return '';
-  
-  switch (status.toLowerCase()) {
-    case 'completed':
-      return 'status-success';
-    case 'in-progress':
-      return 'status-info';
-    case 'failed':
-      return 'status-error';
-    default:
-      return 'status-pending';
-  }
-};
-
-// 배포 상태 텍스트
-const getDeploymentStatusText = (status) => {
-  if (!status) return '알 수 없음';
-  
-  switch (status.toLowerCase()) {
-    case 'completed':
-      return '완료됨';
-    case 'in-progress':
-      return '진행 중';
-    case 'failed':
-      return '실패';
-    case 'pending':
-      return '대기 중';
-    case 'cancelled':
-      return '취소됨';
-    default:
-      return status;
-  }
-};
-
-// 라우팅 함수
-const navigateToRequirements = () => {
-  router.push('/requirements');
-};
-
-const viewRequirement = (requirementId) => {
-  router.push(`/requirements/${requirementId}`);
-};
-
-const viewDeployment = (deploymentId) => {
-  router.push(`/deployments/${deploymentId}`);
-};
-
-// 배포 시작
-const startDeployment = async (requirementId) => {
-  try {
-    await deploymentStore.startDeployment(requirementId);
-    router.push(`/deployments/${deploymentStore.currentDeploymentId}`);
-  } catch (error) {
-    console.error('배포 시작 중 오류 발생:', error);
-  }
-};
-</script>
 
 <style scoped>
 .dashboard {
