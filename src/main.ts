@@ -9,15 +9,20 @@ import pinia from './store' // Pinia 스토어 import
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { 
-  faHome, faTachometerAlt, faClipboardList, faRocket, faChartBar, 
-  faCog, faUser, faSignOutAlt, faSearch, faQuestionCircle, 
-  faBell, faMoon, faSun, faPlus, faChevronRight, faChevronLeft,
-  faCheck, faSpinner, faTimes, faArrowUp, faExclamationTriangle,
-  faExternalLinkAlt, faEye, faEdit, faCopy, faStopCircle, faList,
-  faCheckCircle, faInfoCircle, faLongArrowAltRight, faGithub,
-  faTwitter, faLinkedin, faYoutube, faArrowDown, faFilePdf,
-  faDownload, faCalendarAlt
-} from '@fortawesome/free-solid-svg-icons'
+    faHome, faTachometerAlt, faClipboardList, faRocket, faChartBar, 
+    faCog, faUser, faSignOutAlt, faSearch, faQuestionCircle, 
+    faBell, faMoon, faSun, faPlus, faChevronRight, faChevronLeft,
+    faCheck, faSpinner, faTimes, faArrowUp, faExclamationTriangle,
+    faExternalLinkAlt, faEye, faEdit, faCopy, faStopCircle, faList,
+    faCheckCircle, faInfoCircle, faLongArrowAltRight
+  } from '@fortawesome/free-solid-svg-icons'
+  
+  import { 
+    faGithub,
+    faTwitter, 
+    faLinkedin, 
+    faYoutube 
+  } from '@fortawesome/free-brands-svg-icons'
 
 // 모든 아이콘 등록
 library.add(
@@ -26,14 +31,14 @@ library.add(
   faBell, faMoon, faSun, faPlus, faChevronRight, faChevronLeft,
   faCheck, faSpinner, faTimes, faArrowUp, faExclamationTriangle,
   faExternalLinkAlt, faEye, faEdit, faCopy, faStopCircle, faList,
-  faCheckCircle, faInfoCircle, faLongArrowAltRight, faGithub,
-  faTwitter, faLinkedin, faYoutube, faArrowDown, faFilePdf,
-  faDownload, faCalendarAlt
+  faCheckCircle, faInfoCircle, faLongArrowAltRight, 
+  // 브랜드 아이콘 추가
+  faGithub, faTwitter, faLinkedin, faYoutube
 )
 
 // 스토어 및 컴포넌트 초기화
-import { useDeploymentStore } from './store/modules/deployment'
-import { useRequirementStore } from './store/modules/requirement'
+import { useDeploymentStore } from '@/store/modules/deployment'
+import { useRequirementStore } from '@/store/modules/requirement'
 
 const app = createApp(App)
 
