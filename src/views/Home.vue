@@ -1,22 +1,495 @@
+<template>
+  <div class="dashboard">
+    <!-- 대시보드 콘텐츠 -->
+    <div class="dashboard-content">
+      <!-- 워크플로우 다이어그램 -->
+      <div class="workflow-section">
+        <WorkflowDiagram />
+      </div>
+
+      <!-- 알림 및 빠른 액션 섹션 -->
+      <div class="alerts-actions-section">
+        <div class="alerts-card">
+          <div class="card-header">
+            <h2>최근 알림</h2>
+            <button class="btn-link">모두 읽음</button>
+          </div>
+          <div class="card-content">
+            <div class="alert-list">
+              <div class="alert-item unread">
+                <div class="alert-icon warning">
+                  <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="alert-content">
+                  <h4>배포 경고</h4>
+                  <p>요구사항 #1025의 빌드 과정에서 경고가 발생했습니다.</p>
+                  <span class="alert-time">5분 전</span>
+                </div>
+                <button class="alert-dismiss">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="alert-item unread">
+                <div class="alert-icon success">
+                  <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="alert-content">
+                  <h4>배포 완료</h4>
+                  <p>요구사항 #1023이 성공적으로 배포되었습니다.</p>
+                  <span class="alert-time">15분 전</span>
+                </div>
+                <button class="alert-dismiss">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <div class="alert-item">
+                <div class="alert-icon info">
+                  <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="alert-content">
+                  <h4>시스템 공지</h4>
+                  <p>이번 주 금요일 오후 10시부터 시스템 점검이 예정되어 있습니다.</p>
+                  <span class="alert-time">1시간 전</span>
+                </div>
+                <button class="alert-dismiss">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="quick-actions-card">
+          <div class="card-header">
+            <h2>빠른 작업</h2>
+          </div>
+          <div class="card-content">
+            <div class="quick-actions-grid">
+              <button class="quick-action-btn">
+                <i class="fas fa-plus-circle"></i>
+                <span>새 요구사항</span>
+              </button>
+              <button class="quick-action-btn">
+                <i class="fas fa-rocket"></i>
+                <span>배포 시작</span>
+              </button>
+              <button class="quick-action-btn">
+                <i class="fas fa-history"></i>
+                <span>배포 이력</span>
+              </button>
+              <button class="quick-action-btn">
+                <i class="fas fa-chart-line"></i>
+                <span>성능 분석</span>
+              </button>
+              <button class="quick-action-btn">
+                <i class="fas fa-cog"></i>
+                <span>설정</span>
+              </button>
+              <button class="quick-action-btn">
+                <i class="fas fa-question-circle"></i>
+                <span>도움말</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 통계 카드 섹션 -->
+      <div class="stats-section">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon active">
+              <i class="fas fa-rocket"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-label">진행 중인 배포</h3>
+              <div class="stat-value">{{ activeDeployments.length || 3 }}</div>
+              <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>15% 지난 주 대비</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon completed">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-label">완료된 배포</h3>
+              <div class="stat-value">{{ completedDeployments.length || 12 }}</div>
+              <div class="stat-change positive">
+                <i class="fas fa-arrow-up"></i>
+                <span>12% 지난 주 대비</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon failed">
+              <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-label">실패한 배포</h3>
+              <div class="stat-value">{{ failedDeployments.length || 1 }}</div>
+              <div class="stat-change negative">
+                <i class="fas fa-arrow-down"></i>
+                <span>5% 지난 주 대비</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+              <h3 class="stat-label">평균 배포 시간</h3>
+              <div class="stat-value">{{ avgDeploymentTime || '25분' }}</div>
+              <div class="stat-change positive">
+                <i class="fas fa-arrow-down"></i>
+                <span>8% 지난 주 대비</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 지표 차트 섹션 -->
+      <div class="metrics-section">
+        <div class="metrics-card">
+          <div class="card-header">
+            <h2>배포 성능 추이</h2>
+            <div class="chart-controls">
+              <button class="btn-link active">일간</button>
+              <button class="btn-link">주간</button>
+              <button class="btn-link">월간</button>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="performance-chart">
+              <!-- 여기에 실제 차트 렌더링 -->
+              <div class="chart-placeholder">
+                <div class="chart-area">
+                  <div class="chart-point" style="bottom: 30%; left: 10%"></div>
+                  <div class="chart-point" style="bottom: 45%; left: 25%"></div>
+                  <div class="chart-point" style="bottom: 60%; left: 40%"></div>
+                  <div class="chart-point" style="bottom: 55%; left: 55%"></div>
+                  <div class="chart-point" style="bottom: 65%; left: 70%"></div>
+                  <div class="chart-point active" style="bottom: 75%; left: 85%"></div>
+                  
+                  <div class="chart-line"></div>
+                </div>
+                <div class="chart-labels">
+                  <span>월</span>
+                  <span>화</span>
+                  <span>수</span>
+                  <span>목</span>
+                  <span>금</span>
+                  <span>토</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 데이터 그리드 섹션 -->
+      <div class="data-grid-section">
+        <!-- 최근 요구사항 카드 -->
+        <div class="requirements-card">
+          <div class="card-header">
+            <h2>최근 요구사항</h2>
+            <router-link to="/requirements" class="btn-link">
+              모두 보기 <i class="fas fa-chevron-right"></i>
+            </router-link>
+          </div>
+          <div class="card-content">
+            <div class="requirements-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>제목</th>
+                    <th>우선순위</th>
+                    <th>상태</th>
+                    <th>등록일</th>
+                    <th>작업</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="(req, index) in recentRequirements" :key="req.id || index">
+                    <td>#{{ req.id || 1000 + index }}</td>
+                    <td class="title-cell">{{ req.title || `요구사항 예시 ${index + 1}` }}</td>
+                    <td>
+                      <span class="status-tag" :class="getPriorityClass(req.priority || (index % 3 === 0 ? 'high' : index % 3 === 1 ? 'medium' : 'low'))">
+                        {{ getPriorityText(req.priority || (index % 3 === 0 ? 'high' : index % 3 === 1 ? 'medium' : 'low')) }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="status-tag" :class="getStatusClass(req.status || (index % 4 === 0 ? 'in-progress' : index % 4 === 1 ? 'completed' : index % 4 === 2 ? 'pending' : 'review'))">
+                        {{ getStatusText(req.status || (index % 4 === 0 ? 'in-progress' : index % 4 === 1 ? 'completed' : index % 4 === 2 ? 'pending' : 'review')) }}
+                      </span>
+                    </td>
+                    <td>{{ formatDate(req.createdAt) || '2023-07-' + (20 + index) }}</td>
+                    <td class="actions-cell">
+                      <button class="action-icon" title="상세 보기">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                      <button class="action-icon" title="배포 시작" v-if="!req.deploymentId">
+                        <i class="fas fa-rocket"></i>
+                      </button>
+                      <button class="action-icon" title="수정">
+                        <i class="fas fa-edit"></i>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 최근 배포 카드 -->
+        <div class="deployments-card">
+          <div class="card-header">
+            <h2>최근 배포</h2>
+            <router-link to="/deployments" class="btn-link">
+              모두 보기 <i class="fas fa-chevron-right"></i>
+            </router-link>
+          </div>
+          <div class="card-content">
+            <div class="deployments-grid">
+              <div v-for="(dep, index) in recentDeployments.length ? recentDeployments : [1, 2, 3, 4]" :key="dep.id || index" class="deployment-item">
+                <div class="deployment-header">
+                  <h4>요구사항 #{{ dep.requirementId || 1000 + index }}</h4>
+                  <span class="status-tag" :class="getDeploymentStatusClass(dep.status || (index % 3 === 0 ? 'in-progress' : index % 3 === 1 ? 'completed' : 'failed'))">
+                    {{ getDeploymentStatusText(dep.status || (index % 3 === 0 ? 'in-progress' : index % 3 === 1 ? 'completed' : 'failed')) }}
+                  </span>
+                </div>
+                
+                <div class="deployment-progress">
+                  <div class="progress-label">
+                    <span>{{ dep.currentStep || '이미지 빌드' }}</span>
+                    <span>{{ dep.overallProgress || (index % 3 === 0 ? 65 : index % 3 === 1 ? 100 : 42) }}%</span>
+                  </div>
+                  <div class="progress-bar">
+                    <div class="progress-fill" 
+                      :style="{ width: `${dep.overallProgress || (index % 3 === 0 ? 65 : index % 3 === 1 ? 100 : 42)}%` }"
+                      :class="{'progress-animated': dep.status === 'in-progress' || index % 3 === 0 }">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="deployment-footer">
+                  <span class="deployment-date">
+                    <i class="far fa-clock"></i>
+                    {{ formatTimeAgo(dep.startTime) || (index === 0 ? '10분 전' : index === 1 ? '3시간 전' : index === 2 ? '어제' : '2일 전') }}
+                  </span>
+                  
+                  <button class="btn-icon">
+                    <i class="fas fa-external-link-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 시스템 상태 및 활동 섹션 -->
+      <div class="status-activity-section">
+        <!-- 시스템 상태 카드 -->
+        <div class="system-status-card">
+          <div class="card-header">
+            <h2>시스템 상태</h2>
+            <span class="status-badge online">
+              <i class="fas fa-check-circle"></i> 정상
+            </span>
+          </div>
+          <div class="card-content">
+            <div class="status-grid">
+              <div class="status-item">
+                <div class="status-item-header">
+                  <h4>GitLab</h4>
+                  <span class="status-dot online"></span>
+                </div>
+                <div class="status-details">
+                  <div class="status-metric">
+                    <span>응답 시간</span>
+                    <span>120ms</span>
+                  </div>
+                  <div class="status-metric">
+                    <span>가용성</span>
+                    <span>99.9%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="status-item">
+                <div class="status-item-header">
+                  <h4>Jenkins</h4>
+                  <span class="status-dot online"></span>
+                </div>
+                <div class="status-details">
+                  <div class="status-metric">
+                    <span>응답 시간</span>
+                    <span>180ms</span>
+                  </div>
+                  <div class="status-metric">
+                    <span>가용성</span>
+                    <span>99.8%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="status-item">
+                <div class="status-item-header">
+                  <h4>ArgoCD</h4>
+                  <span class="status-dot warning"></span>
+                </div>
+                <div class="status-details">
+                  <div class="status-metric">
+                    <span>응답 시간</span>
+                    <span>250ms</span>
+                  </div>
+                  <div class="status-metric">
+                    <span>가용성</span>
+                    <span>98.5%</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="status-item">
+                <div class="status-item-header">
+                  <h4>Kubernetes</h4>
+                  <span class="status-dot online"></span>
+                </div>
+                <div class="status-details">
+                  <div class="status-metric">
+                    <span>응답 시간</span>
+                    <span>150ms</span>
+                  </div>
+                  <div class="status-metric">
+                    <span>가용성</span>
+                    <span>99.7%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 활동 피드 카드 -->
+        <div class="activity-feed-card">
+          <div class="card-header">
+            <h2>최근 활동</h2>
+            <div class="feed-filter">
+              <select>
+                <option>모든 활동</option>
+                <option>배포</option>
+                <option>빌드</option>
+                <option>요구사항</option>
+              </select>
+            </div>
+          </div>
+          <div class="card-content">
+            <div class="activity-timeline">
+              <div class="timeline-item">
+                <div class="timeline-icon completed">
+                  <i class="fas fa-check"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <h4>배포 완료</h4>
+                    <span class="timeline-time">10분 전</span>
+                  </div>
+                  <p>요구사항 #1023 배포가 성공적으로 완료되었습니다.</p>
+                  <div class="timeline-actions">
+                    <button class="btn-link">상세 보기</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="timeline-item">
+                <div class="timeline-icon active">
+                  <i class="fas fa-spinner"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <h4>배포 시작</h4>
+                    <span class="timeline-time">1시간 전</span>
+                  </div>
+                  <p>요구사항 #1025에 대한 배포가 시작되었습니다.</p>
+                  <div class="timeline-actions">
+                    <button class="btn-link">모니터링</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="timeline-item">
+                <div class="timeline-icon info">
+                  <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <h4>요구사항 등록</h4>
+                    <span class="timeline-time">3시간 전</span>
+                  </div>
+                  <p>새로운 요구사항 #1026이 등록되었습니다.</p>
+                  <div class="timeline-actions">
+                    <button class="btn-link">상세 보기</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="timeline-item">
+                <div class="timeline-icon failed">
+                  <i class="fas fa-times"></i>
+                </div>
+                <div class="timeline-content">
+                  <div class="timeline-header">
+                    <h4>배포 실패</h4>
+                    <span class="timeline-time">어제</span>
+                  </div>
+                  <p>요구사항 #1022 배포 중 오류가 발생했습니다.</p>
+                  <div class="timeline-details">
+                    <pre>Error: 이미지 빌드 중 컴파일 오류 발생 (Exit code: 1)</pre>
+                  </div>
+                  <div class="timeline-actions">
+                    <button class="btn-link">로그 보기</button>
+                    <button class="btn-link">재시도</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useRequirementStore } from '@/store/modules/requirement';
 import { useDeploymentStore } from '@/store/modules/deployment';
-import WorkflowDiagram from '@/components/common/WorkflowDiagram.vue'; // 워크플로우 다이어그램 컴포넌트 추가
+import WorkflowDiagram from '@/components/common/WorkflowDiagram.vue';
 
 const router = useRouter();
 const requirementStore = useRequirementStore();
 const deploymentStore = useDeploymentStore();
 
 // 상태
-const isLoading = ref(true);
+const isLoading = ref(false);
 const activeDeploymentsIncreased = ref(true);
 const activeDeploymentsChange = ref(15);
 
 // 컴포넌트 마운트 시 데이터 로드
 onMounted(async () => {
   try {
+    isLoading.value = true;
     await Promise.all([
       requirementStore.fetchRequirements(),
       deploymentStore.fetchLatestDeployment()
@@ -30,7 +503,7 @@ onMounted(async () => {
 
 // 최근 요구사항 목록
 const recentRequirements = computed(() => {
-  return requirementStore.requirements.slice(0, 4);
+  return requirementStore.requirements.slice(0, 5);
 });
 
 // 최근 배포 목록
@@ -131,6 +604,46 @@ const getPriorityText = (priority) => {
   }
 };
 
+// 상태 클래스
+const getStatusClass = (status) => {
+  if (!status) return '';
+  
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return 'status-success';
+    case 'in-progress':
+      return 'status-info';
+    case 'pending':
+      return 'status-pending';
+    case 'review':
+      return 'status-warning';
+    case 'failed':
+      return 'status-error';
+    default:
+      return '';
+  }
+};
+
+// 상태 텍스트
+const getStatusText = (status) => {
+  if (!status) return '';
+  
+  switch (status.toLowerCase()) {
+    case 'completed':
+      return '완료';
+    case 'in-progress':
+      return '진행 중';
+    case 'pending':
+      return '대기 중';
+    case 'review':
+      return '검토 중';
+    case 'failed':
+      return '실패';
+    default:
+      return status;
+  }
+};
+
 // 배포 상태 클래스
 const getDeploymentStatusClass = (status) => {
   if (!status) return '';
@@ -191,378 +704,192 @@ const startDeployment = async (requirementId) => {
 };
 </script>
 
-<template>
-  <div class="dashboard">
-    <div class="container">
-      <!-- 대시보드 헤더 -->
-      <div class="dashboard-header mb-4">
-        <h1 class="page-title">대시보드</h1>
-        <div class="dashboard-actions">
-          <router-link to="/requirements/new" class="btn btn-primary btn-icon">
-            <i class="fas fa-plus"></i>
-            <span>새 요구사항</span>
-          </router-link>
-        </div>
-      </div>
-      
-      <!-- 워크플로우 다이어그램 추가 -->
-      <WorkflowDiagram class="mb-5" />
-
-      <!-- 로딩 상태 -->
-      <div v-if="isLoading" class="loading-container">
-        <div class="spinner"></div>
-        <p>데이터를 불러오는 중...</p>
-      </div>
-      
-      <!-- 대시보드 콘텐츠 -->
-      <div v-else class="dashboard-content">
-        <!-- 요약 카드 섹션 -->
-        <div class="stats-grid mb-5">
-          <div class="stat-card">
-            <div class="stat-icon active">
-              <i class="fas fa-rocket"></i>
-            </div>
-            <div class="stat-content">
-              <h3 class="stat-label">진행 중인 배포</h3>
-              <div class="stat-value">{{ activeDeployments.length }}</div>
-              <div class="stat-change" :class="activeDeploymentsIncreased ? 'positive' : 'negative'">
-                <i :class="activeDeploymentsIncreased ? 'fas fa-arrow-up' : 'fas fa-arrow-down'"></i>
-                <span>{{ activeDeploymentsChange }}% 지난 주 대비</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon completed">
-              <i class="fas fa-check-circle"></i>
-            </div>
-            <div class="stat-content">
-              <h3 class="stat-label">완료된 배포</h3>
-              <div class="stat-value">{{ completedDeployments.length }}</div>
-              <div class="stat-change positive">
-                <i class="fas fa-arrow-up"></i>
-                <span>12% 지난 주 대비</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon failed">
-              <i class="fas fa-exclamation-triangle"></i>
-            </div>
-            <div class="stat-content">
-              <h3 class="stat-label">실패한 배포</h3>
-              <div class="stat-value">{{ failedDeployments.length }}</div>
-              <div class="stat-change negative">
-                <i class="fas fa-arrow-down"></i>
-                <span>5% 지난 주 대비</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="stat-card">
-            <div class="stat-icon">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="stat-content">
-              <h3 class="stat-label">평균 배포 시간</h3>
-              <div class="stat-value">{{ avgDeploymentTime }}</div>
-              <div class="stat-change positive">
-                <i class="fas fa-arrow-down"></i>
-                <span>8% 지난 주 대비</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- 메인 콘텐츠 그리드 -->
-        <div class="dashboard-grid">
-          <!-- 최근 요구사항 카드 -->
-          <div class="dashboard-card recent-requirements">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h2>최근 요구사항</h2>
-              <router-link to="/requirements" class="btn btn-ghost btn-sm">
-                모두 보기
-                <i class="fas fa-chevron-right"></i>
-              </router-link>
-            </div>
-            
-            <div class="card-content">
-              <div v-if="recentRequirements.length > 0" class="requirement-list">
-                <div 
-                  v-for="req in recentRequirements" 
-                  :key="req.id" 
-                  class="requirement-item"
-                  @click="viewRequirement(req.id)"
-                >
-                  <div class="req-header d-flex justify-content-between">
-                    <h4 class="req-title">{{ req.title }}</h4>
-                    <span 
-                      class="status-tag" 
-                      :class="getPriorityClass(req.priority)"
-                    >
-                      {{ getPriorityText(req.priority) }}
-                    </span>
-                  </div>
-                  
-                  <p class="req-description">{{ truncateText(req.description, 120) }}</p>
-                  
-                  <div class="req-footer d-flex justify-content-between align-items-center">
-                    <div class="req-meta">
-                      <span class="req-date">
-                        <i class="far fa-calendar-alt"></i>
-                        {{ formatDate(req.createdAt) }}
-                      </span>
-                    </div>
-                    
-                    <button 
-                      v-if="!req.deploymentId"
-                      class="btn btn-sm btn-outline-primary"
-                      @click.stop="startDeployment(req.id)"
-                    >
-                      <i class="fas fa-rocket"></i> 배포 시작
-                    </button>
-                    <span 
-                      v-else 
-                      class="status-tag"
-                      :class="getDeploymentStatusClass(req.deploymentStatus)"
-                      @click.stop="viewDeployment(req.deploymentId)"
-                    >
-                      {{ getDeploymentStatusText(req.deploymentStatus) }}
-                    </span>
-                  </div>
-                </div>
-              </div>
-              
-              <div v-else class="empty-state">
-                <i class="fas fa-clipboard-list empty-icon"></i>
-                <p>등록된 요구사항이 없습니다.</p>
-                <router-link to="/requirements/new" class="btn btn-outline-primary">
-                  새 요구사항 등록하기
-                </router-link>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 최근 배포 카드 -->
-          <div class="dashboard-card recent-deployments">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h2>최근 배포</h2>
-              <router-link to="/deployments" class="btn btn-ghost btn-sm">
-                모두 보기
-                <i class="fas fa-chevron-right"></i>
-              </router-link>
-            </div>
-            
-            <div class="card-content">
-              <div v-if="recentDeployments.length > 0" class="deployment-list">
-                <div 
-                  v-for="dep in recentDeployments" 
-                  :key="dep.id" 
-                  class="deployment-item"
-                  @click="viewDeployment(dep.id)"
-                >
-                  <div class="deployment-header d-flex justify-content-between align-items-center">
-                    <h4 class="deployment-title">요구사항 #{{ dep.requirementId }}</h4>
-                    <span 
-                      class="status-tag" 
-                      :class="getDeploymentStatusClass(dep.status)"
-                    >
-                      {{ getDeploymentStatusText(dep.status) }}
-                    </span>
-                  </div>
-                  
-                  <div class="deployment-progress">
-                    <div class="progress-label d-flex justify-content-between">
-                      <span>{{ dep.currentStep || '준비 중' }}</span>
-                      <span>{{ dep.overallProgress || 0 }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                      <div 
-                        class="progress-fill" 
-                        :style="{ width: `${dep.overallProgress || 0}%` }"
-                        :class="{'progress-animated': dep.status === 'in-progress'}"
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <div class="deployment-footer d-flex justify-content-between align-items-center">
-                    <span class="deployment-date">
-                      <i class="far fa-clock"></i>
-                      {{ formatTimeAgo(dep.startTime) }}
-                    </span>
-                    
-                    <button class="btn btn-sm btn-ghost">
-                      <i class="fas fa-external-link-alt"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-              
-              <div v-else class="empty-state">
-                <i class="fas fa-rocket empty-icon"></i>
-                <p>최근 배포 작업이 없습니다.</p>
-                <button 
-                  class="btn btn-outline-primary"
-                  :disabled="recentRequirements.length === 0"
-                  @click="navigateToRequirements"
-                >
-                  요구사항 확인하기
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 배포 활동 그래프 -->
-          <div class="dashboard-card deployment-activity">
-            <div class="card-header">
-              <h2>배포 활동</h2>
-            </div>
-            
-            <div class="card-content">
-              <div class="chart-container">
-                <!-- 이 부분에 차트 컴포넌트를 추가할 수 있습니다 -->
-                <div class="placeholder-chart">
-                  <div class="bar-chart">
-                    <div class="chart-bar" style="height: 70%;"><span>월</span></div>
-                    <div class="chart-bar" style="height: 50%;"><span>화</span></div>
-                    <div class="chart-bar" style="height: 80%;"><span>수</span></div>
-                    <div class="chart-bar" style="height: 65%;"><span>목</span></div>
-                    <div class="chart-bar active" style="height: 90%;"><span>금</span></div>
-                    <div class="chart-bar" style="height: 40%;"><span>토</span></div>
-                    <div class="chart-bar" style="height: 30%;"><span>일</span></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- 최근 활동 피드 -->
-          <div class="dashboard-card activity-feed">
-            <div class="card-header">
-              <h2>최근 활동</h2>
-            </div>
-            
-            <div class="card-content">
-              <div class="timeline">
-                <div class="timeline-item">
-                  <div class="timeline-icon completed">
-                    <i class="fas fa-check"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-header">
-                      <h4>배포 완료</h4>
-                      <span class="timeline-time">10분 전</span>
-                    </div>
-                    <p>요구사항 #1023 배포가 성공적으로 완료되었습니다.</p>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-icon active">
-                    <i class="fas fa-spinner"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-header">
-                      <h4>배포 시작</h4>
-                      <span class="timeline-time">1시간 전</span>
-                    </div>
-                    <p>요구사항 #1025에 대한 배포가 시작되었습니다.</p>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-icon info">
-                    <i class="fas fa-file-alt"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-header">
-                      <h4>요구사항 등록</h4>
-                      <span class="timeline-time">3시간 전</span>
-                    </div>
-                    <p>새로운 요구사항 #1026이 등록되었습니다.</p>
-                  </div>
-                </div>
-                
-                <div class="timeline-item">
-                  <div class="timeline-icon failed">
-                    <i class="fas fa-times"></i>
-                  </div>
-                  <div class="timeline-content">
-                    <div class="timeline-header">
-                      <h4>배포 실패</h4>
-                      <span class="timeline-time">어제</span>
-                    </div>
-                    <p>요구사항 #1022 배포 중 오류가 발생했습니다.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
-
 <style scoped>
 .dashboard {
-  padding: var(--space-lg) 0;
   min-height: calc(100vh - 200px);
 }
 
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-xl);
+/* 메인 레이아웃 컨테이너 */
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    "workflow"
+    "alerts-actions"
+    "stats"
+    "metrics"
+    "data-grid"
+    "status-activity";
+  gap: 1.5rem;
 }
 
-.page-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  color: var(--gray-900);
+/* 워크플로우 섹션 */
+.workflow-section {
+  grid-area: workflow;
+}
+
+/* 알림 및 빠른 액션 섹션 */
+.alerts-actions-section {
+  grid-area: alerts-actions;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1.5rem;
+}
+
+.alerts-card, .quick-actions-card {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.alert-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+  background-color: var(--gray-50);
   position: relative;
 }
 
-.page-title::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  bottom: -8px;
-  width: 40px;
-  height: 4px;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-  border-radius: var(--radius-full);
+.alert-item.unread {
+  background-color: rgba(76, 201, 240, 0.05);
+  border-left: 3px solid var(--info);
 }
 
-.loading-container {
+.alert-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.75rem;
+  flex-shrink: 0;
+}
+
+.alert-icon.warning {
+  background-color: rgba(255, 159, 28, 0.1);
+  color: var(--warning);
+}
+
+.alert-icon.success {
+  background-color: rgba(6, 214, 160, 0.1);
+  color: var(--success);
+}
+
+.alert-icon.info {
+  background-color: rgba(67, 97, 238, 0.1);
+  color: var(--primary);
+}
+
+.alert-icon.error {
+  background-color: rgba(230, 57, 70, 0.1);
+  color: var(--danger);
+}
+
+.alert-content {
+  flex: 1;
+}
+
+.alert-content h4 {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.alert-content p {
+  margin: 0 0 0.25rem 0;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+}
+
+.alert-time {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.alert-dismiss {
+  background: transparent;
+  border: none;
+  color: var(--gray-400);
+  cursor: pointer;
+  padding: 0.25rem;
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.alert-dismiss:hover {
+  background-color: var(--gray-200);
+  color: var(--gray-700);
+}
+
+.quick-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.quick-action-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--space-xxl);
+  padding: 1rem;
+  background-color: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.loading-container p {
-  margin-top: var(--space-md);
-  color: var(--gray-600);
+.quick-action-btn:hover {
+  background-color: var(--primary-light);
+  color: var(--white);
+  transform: translateY(-2px);
 }
 
-/* 통계 카드 스타일 */
+.quick-action-btn i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.quick-action-btn span {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* 통계 섹션 */
+.stats-section {
+  grid-area: stats;
+}
+
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
 }
 
 .stat-card {
   display: flex;
   align-items: center;
-  padding: var(--space-lg);
+  padding: 1.25rem;
   background-color: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
@@ -639,156 +966,202 @@ const startDeployment = async (requirementId) => {
   margin-right: 0.25rem;
 }
 
-/* 대시보드 그리드 레이아웃 */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-areas:
-    "requirements deployments"
-    "activity chart";
-  gap: var(--space-lg);
+/* 지표 차트 섹션 */
+.metrics-section {
+  grid-area: metrics;
 }
 
-.recent-requirements {
-  grid-area: requirements;
-}
-
-.recent-deployments {
-  grid-area: deployments;
-}
-
-.deployment-activity {
-  grid-area: chart;
-}
-
-.activity-feed {
-  grid-area: activity;
-}
-
-.dashboard-card {
+.metrics-card {
   background-color: var(--white);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
   overflow: hidden;
-  height: 100%;
+}
+
+.chart-controls {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.chart-placeholder {
+  height: 250px;
+  position: relative;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
 }
 
-.card-header {
-  padding: var(--space-lg);
+.chart-area {
+  flex: 1;
+  position: relative;
   border-bottom: 1px solid var(--gray-200);
 }
 
-.card-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--gray-800);
+.chart-point {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  transform: translate(-50%, 50%);
 }
 
-.card-content {
-  padding: var(--space-lg);
-  overflow-y: auto;
-  flex: 1;
+.chart-point.active {
+  width: 14px;
+  height: 14px;
+  background-color: var(--primary-dark);
+  box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
 }
 
-/* 요구사항 아이템 스타일 */
-.requirement-list {
+.chart-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(to right top, transparent 49.9%, var(--primary) 49.9%, var(--primary) 50.1%, transparent 50.1%),
+              linear-gradient(to right bottom, transparent 49.9%, var(--primary) 49.9%, var(--primary) 50.1%, transparent 50.1%);
+  background-size: 10px 10px;
+  background-position: 0 0;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.chart-labels {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
+  justify-content: space-between;
+  padding: 0.5rem 0.25rem;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 
-.requirement-item {
-  padding: var(--space-md);
-  background-color: var(--gray-100);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.requirement-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
-}
-
-.req-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-}
-
-.req-description {
-  margin: var(--space-sm) 0;
-  font-size: 0.875rem;
-  color: var(--gray-600);
-  line-height: 1.5;
-}
-
-.req-footer {
-  margin-top: var(--space-sm);
+.chart-labels span {
   font-size: 0.75rem;
-}
-
-.req-meta {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
   color: var(--gray-600);
 }
 
-.req-date i {
-  margin-right: 0.25rem;
+/* 데이터 그리드 섹션 */
+.data-grid-section {
+  grid-area: data-grid;
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1.5rem;
 }
 
-/* 배포 아이템 스타일 */
-.deployment-list {
+.requirements-card, .deployments-card {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: var(--space-md);
+}
+
+.requirements-table {
+  overflow-x: auto;
+}
+
+.requirements-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.requirements-table th, .requirements-table td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.requirements-table th {
+  font-weight: 600;
+  color: var(--gray-700);
+  background-color: var(--gray-50);
+}
+
+.requirements-table tr:last-child td {
+  border-bottom: none;
+}
+
+.requirements-table .title-cell {
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.action-icon {
+  background: transparent;
+  border: none;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--gray-600);
+  transition: all 0.2s ease;
+  margin-right: 0.25rem;
+  cursor: pointer;
+}
+
+.action-icon:hover {
+  background-color: var(--gray-100);
+  color: var(--primary);
+}
+
+.deployments-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
 }
 
 .deployment-item {
-  padding: var(--space-md);
-  background-color: var(--gray-100);
+  background-color: var(--gray-50);
   border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  padding: 0.75rem;
 }
 
-.deployment-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+.deployment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
 }
 
-.deployment-title {
+.deployment-header h4 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
 .deployment-progress {
-  margin: var(--space-sm) 0;
+  margin-bottom: 0.75rem;
 }
 
 .progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 0.75rem;
   color: var(--gray-600);
   margin-bottom: 0.25rem;
 }
 
 .progress-bar {
-  height: 0.5rem;
+  height: 6px;
   background-color: var(--gray-200);
-  border-radius: var(--radius-full);
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
   background-color: var(--primary);
-  border-radius: var(--radius-full);
+  border-radius: 3px;
 }
 
 .progress-animated {
@@ -804,8 +1177,15 @@ const startDeployment = async (requirementId) => {
   animation: progress-animation 1s linear infinite;
 }
 
+@keyframes progress-animation {
+  0% { background-position: 1rem 0; }
+  100% { background-position: 0 0; }
+}
+
 .deployment-footer {
-  margin-top: var(--space-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: 0.75rem;
   color: var(--gray-600);
 }
@@ -814,25 +1194,158 @@ const startDeployment = async (requirementId) => {
   margin-right: 0.25rem;
 }
 
-/* 타임라인 스타일 */
-.timeline {
-  position: relative;
-  padding-left: var(--space-lg);
+.btn-icon {
+  background: transparent;
+  border: none;
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  color: var(--gray-600);
+  transition: all 0.2s ease;
+  cursor: pointer;
 }
 
-.timeline::before {
+.btn-icon:hover {
+  background-color: var(--gray-200);
+  color: var(--primary);
+}
+
+/* 시스템 상태 및 활동 섹션 */
+.status-activity-section {
+  grid-area: status-activity;
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1.5rem;
+}
+
+.system-status-card, .activity-feed-card {
+  background-color: var(--white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-badge.online {
+  background-color: rgba(6, 214, 160, 0.1);
+  color: var(--success);
+}
+
+.status-badge.warning {
+  background-color: rgba(255, 159, 28, 0.1);
+  color: var(--warning);
+}
+
+.status-badge.offline {
+  background-color: rgba(230, 57, 70, 0.1);
+  color: var(--danger);
+}
+
+.status-badge i {
+  margin-right: 0.25rem;
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.status-item {
+  background-color: var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+}
+
+.status-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.status-item-header h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background-color: var(--success);
+}
+
+.status-dot.warning {
+  background-color: var(--warning);
+}
+
+.status-dot.offline {
+  background-color: var(--danger);
+}
+
+.status-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--gray-600);
+}
+
+.feed-filter {
+  min-width: 120px;
+}
+
+.feed-filter select {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--gray-700);
+  background-color: var(--white);
+}
+
+.activity-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.activity-timeline::before {
   content: '';
   position: absolute;
   top: 0;
+  left: 8px;
   bottom: 0;
-  left: 6px;
   width: 2px;
   background-color: var(--gray-200);
 }
 
 .timeline-item {
   position: relative;
-  margin-bottom: var(--space-lg);
+  margin-bottom: 1.25rem;
 }
 
 .timeline-item:last-child {
@@ -841,17 +1354,16 @@ const startDeployment = async (requirementId) => {
 
 .timeline-icon {
   position: absolute;
+  left: -2rem;
   top: 0;
-  left: -36px;
   width: 24px;
   height: 24px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background-color: var(--gray-300);
+  font-size: 0.8rem;
   color: var(--white);
-  font-size: 0.75rem;
   z-index: 1;
 }
 
@@ -872,19 +1384,22 @@ const startDeployment = async (requirementId) => {
 }
 
 .timeline-content {
-  padding-left: var(--space-sm);
+  background-color: var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 0.75rem;
+  position: relative;
 }
 
 .timeline-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .timeline-header h4 {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
 }
 
@@ -894,92 +1409,90 @@ const startDeployment = async (requirementId) => {
 }
 
 .timeline-content p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--gray-700);
+}
+
+.timeline-details {
+  background-color: var(--gray-100);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  overflow-x: auto;
+}
+
+.timeline-details pre {
   margin: 0;
-  font-size: 0.875rem;
-  color: var(--gray-600);
+  font-size: 0.8rem;
+  font-family: monospace;
+  color: var(--gray-800);
+  white-space: pre-wrap;
 }
 
-/* 차트 플레이스홀더 */
-.chart-container {
-  height: 240px;
+.timeline-actions {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 0.75rem;
 }
 
-.placeholder-chart {
-  width: 100%;
-  height: 100%;
+/* 공통 스타일 */
+.card-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--gray-200);
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding: var(--space-md);
-}
-
-.bar-chart {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: flex-end;
   justify-content: space-between;
-}
-
-.chart-bar {
-  width: 12%;
-  background-color: rgba(67, 97, 238, 0.2);
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  position: relative;
-  transition: all var(--transition-normal);
-}
-
-.chart-bar:hover {
-  transform: scaleY(1.05);
-  background-color: rgba(67, 97, 238, 0.4);
-}
-
-.chart-bar.active {
-  background-color: rgba(67, 97, 238, 0.6);
-}
-
-.chart-bar span {
-  position: absolute;
-  bottom: -24px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--gray-600);
-}
-
-/* 빈 상태 스타일 */
-.empty-state {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: var(--space-xl);
-  text-align: center;
 }
 
-.empty-icon {
-  font-size: 2.5rem;
-  color: var(--gray-300);
-  margin-bottom: var(--space-md);
+.card-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gray-800);
 }
 
-.empty-state p {
-  margin-bottom: var(--space-md);
-  color: var(--gray-600);
+.card-content {
+  padding: 1rem 1.25rem;
+  flex: 1;
+  overflow-y: auto;
 }
 
-/* 상태 태그 스타일 */
+.btn-link {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-link:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.btn-link.active {
+  font-weight: 600;
+  color: var(--primary-dark);
+}
+
+.btn-link i {
+  margin-left: 0.25rem;
+}
+
 .status-tag {
   display: inline-flex;
   align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
+  padding: 0.2rem 0.5rem;
+  border-radius: 50px;
   font-size: 0.75rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .status-success {
@@ -1008,26 +1521,55 @@ const startDeployment = async (requirementId) => {
 }
 
 /* 반응형 레이아웃 */
-@media (max-width: 1024px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
+@media (min-width: 1200px) {
+  .dashboard-content {
+    grid-template-columns: repeat(4, 1fr);
     grid-template-areas:
-      "requirements"
-      "deployments"
-      "chart"
-      "activity";
+      "workflow workflow workflow workflow"
+      "alerts-actions alerts-actions alerts-actions alerts-actions"
+      "stats stats stats stats"
+      "metrics metrics metrics metrics"
+      "data-grid data-grid data-grid data-grid"
+      "status-activity status-activity status-activity status-activity";
+  }
+}
+
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .data-grid-section {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .status-activity-section {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .alerts-actions-section {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+  
+  .deployments-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+    grid-template-columns: 1fr;
   }
   
-  .dashboard-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-md);
+  .status-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .quick-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>

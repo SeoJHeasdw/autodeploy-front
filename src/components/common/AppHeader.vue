@@ -1,268 +1,288 @@
 <template>
   <header class="app-header">
-    <div class="container">
-      <div class="header-content">
-        <div class="brand">
-          <router-link to="/">
-            <div class="logo d-flex align-items-center">
-              <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M16 2L3 9L16 16L29 9L16 2Z" fill="var(--primary)"/>
-                <path d="M3 23L16 30L29 23V9L16 16L3 9V23Z" fill="var(--primary-light)" fill-opacity="0.7"/>
-              </svg>
-              <h1>AutoDeploy</h1>
-            </div>
-          </router-link>
+    <div class="header-left">
+      <div class="page-info">
+        <h1 class="page-title">{{ currentPageTitle }}</h1>
+        <div class="breadcrumb" v-if="breadcrumbs.length > 0">
+          <span v-for="(crumb, index) in breadcrumbs" :key="index">
+            <span v-if="index > 0" class="breadcrumb-separator">
+              <i class="fas fa-chevron-right"></i>
+            </span>
+            <router-link v-if="crumb.path && index < breadcrumbs.length - 1" :to="crumb.path">
+              {{ crumb.name }}
+            </router-link>
+            <span v-else>{{ crumb.name }}</span>
+          </span>
         </div>
-        
-        <nav class="main-nav">
-          <ul>
-            <li>
-              <router-link to="/" exact class="nav-link">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>대시보드</span>
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/requirements" class="nav-link">
-                <i class="fas fa-clipboard-list"></i>
-                <span>요구사항</span>
-              </router-link>
-            </li>
-            <li>
-              <router-link to="/deployments" class="nav-link">
-                <i class="fas fa-rocket"></i>
-                <span>배포 관리</span>
-              </router-link>
-            </li>
-          </ul>
-        </nav>
-        
-        <div class="actions">
-          <div class="dropdown hide-mobile">
-            <button class="btn btn-ghost btn-icon">
-              <i class="fas fa-bell"></i>
-            </button>
-          </div>
-          
-          <router-link to="/requirements/new" class="btn btn-primary btn-icon">
-            <i class="fas fa-plus"></i>
-            <span>새 요구사항</span>
-          </router-link>
-        </div>
-        
-        <!-- 모바일 메뉴 토글 버튼 -->
-        <button class="mobile-toggle hide-desktop" @click="toggleMobileMenu">
-          <i class="fas" :class="mobileMenuOpen ? 'fa-times' : 'fa-bars'"></i>
-        </button>
       </div>
     </div>
-    
-    <!-- 모바일 메뉴 -->
-    <div class="mobile-menu" :class="{ 'open': mobileMenuOpen }">
-      <nav>
-        <ul>
-          <li>
-            <router-link to="/" exact class="nav-link" @click="toggleMobileMenu">
-              <i class="fas fa-tachometer-alt"></i>
-              <span>대시보드</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/requirements" class="nav-link" @click="toggleMobileMenu">
-              <i class="fas fa-clipboard-list"></i>
-              <span>요구사항</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/deployments" class="nav-link" @click="toggleMobileMenu">
-              <i class="fas fa-rocket"></i>
-              <span>배포 관리</span>
-            </router-link>
-          </li>
-          <li>
-            <router-link to="/requirements/new" class="nav-link" @click="toggleMobileMenu">
-              <i class="fas fa-plus"></i>
-              <span>새 요구사항</span>
-            </router-link>
-          </li>
-        </ul>
-      </nav>
+
+    <div class="header-right">
+      <div class="search-container">
+        <div class="search-input">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="검색..." />
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="action-btn" title="도움말">
+          <i class="fas fa-question-circle"></i>
+        </button>
+        
+        <button class="action-btn" title="알림">
+          <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span>
+        </button>
+        
+        <button class="action-btn" @click="toggleTheme" title="테마 변경">
+          <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+        </button>
+        
+        <router-link to="/requirements/new" class="btn btn-primary btn-icon">
+          <i class="fas fa-plus"></i>
+          <span>새 요구사항</span>
+        </router-link>
+      </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 
-const mobileMenuOpen = ref(false);
+// 테마 변경 관련 상태
+const isDarkMode = ref(false);
 
-const toggleMobileMenu = () => {
-  mobileMenuOpen.value = !mobileMenuOpen.value;
+// 현재 페이지 제목 및 경로 관련
+const route = useRoute();
+
+// 페이지 제목 계산
+const currentPageTitle = computed(() => {
+  return route.meta.title || '자동화 CI/CD 플랫폼';
+});
+
+// 경로 기반 breadcrumb 생성
+const breadcrumbs = computed(() => {
+  const crumbs = [];
   
-  // 모바일 메뉴가 열려있을 때 스크롤 방지
-  if (mobileMenuOpen.value) {
-    document.body.style.overflow = 'hidden';
-  } else {
-    document.body.style.overflow = '';
+  // 홈 항상 포함
+  crumbs.push({ name: '홈', path: '/' });
+  
+  // 현재 경로 분석하여 breadcrumb 생성
+  const pathParts = route.path.split('/').filter(part => part);
+  
+  if (pathParts.length > 0) {
+    let currentPath = '';
+    
+    for (let i = 0; i < pathParts.length; i++) {
+      const part = pathParts[i];
+      currentPath += `/${part}`;
+      
+      // ID 값이면 스킵 (마지막 항목으로 처리)
+      if (part.match(/^[0-9a-f-]+$/)) continue;
+      
+      // 경로명 변환
+      let name = '';
+      switch (part) {
+        case 'requirements':
+          name = '요구사항';
+          break;
+        case 'deployments':
+          name = '배포 관리';
+          break;
+        case 'new':
+          name = '생성';
+          break;
+        case 'analytics':
+          name = '분석';
+          break;
+        case 'settings':
+          name = '설정';
+          break;
+        default:
+          name = part.charAt(0).toUpperCase() + part.slice(1);
+      }
+      
+      // 마지막 항목이면 path 없이 추가 (현재 페이지)
+      if (i === pathParts.length - 1) {
+        crumbs.push({ name });
+      } else {
+        crumbs.push({ name, path: currentPath });
+      }
+    }
   }
+  
+  return crumbs;
+});
+
+// 테마 변경 함수
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value;
+  document.documentElement.classList.toggle('dark-theme', isDarkMode.value);
+  localStorage.setItem('darkMode', isDarkMode.value);
 };
+
+// 컴포넌트 마운트 시 저장된 테마 적용
+onMounted(() => {
+  const savedTheme = localStorage.getItem('darkMode');
+  if (savedTheme === 'true') {
+    isDarkMode.value = true;
+    document.documentElement.classList.add('dark-theme');
+  }
+});
 </script>
 
 <style scoped>
 .app-header {
+  padding: 1rem 1.5rem;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
-  background-color: var(--white);
-  box-shadow: var(--shadow-sm);
-  z-index: 100;
-  padding: 0.75rem 0;
+  z-index: 10;
 }
 
-.header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.brand a {
-  text-decoration: none;
-  color: var(--gray-900);
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.logo-icon {
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-.brand h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 600;
-  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  text-fill-color: transparent;
-}
-
-.main-nav ul {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  gap: 1.5rem;
-}
-
-.nav-link {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-decoration: none;
-  color: var(--gray-700);
-  font-weight: 500;
-  padding: 0.5rem 0.25rem;
-  position: relative;
-  transition: color var(--transition-fast);
-}
-
-.nav-link i {
-  font-size: 1rem;
-}
-
-.nav-link:hover {
-  color: var(--primary);
-}
-
-.nav-link.router-link-active {
-  color: var(--primary);
-}
-
-.nav-link.router-link-active::after {
-  content: '';
-  position: absolute;
-  bottom: -3px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--primary);
-  border-radius: var(--radius-full);
-}
-
-.actions {
+.header-left, .header-right {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
 
-/* 모바일 메뉴 토글 버튼 */
-.mobile-toggle {
+.page-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.breadcrumb {
+  font-size: 0.8rem;
+  color: var(--gray-600);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb-separator {
+  margin: 0 0.25rem;
+  font-size: 0.7rem;
+}
+
+.search-container {
+  position: relative;
+}
+
+.search-input {
+  position: relative;
+  width: 250px;
+}
+
+.search-input input {
+  width: 100%;
+  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 4px;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.search-input input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+  outline: none;
+}
+
+.search-input i {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--gray-500);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.action-btn {
   background: transparent;
   border: none;
-  font-size: 1.25rem;
-  color: var(--gray-700);
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast);
+  font-size: 1.1rem;
+  color: var(--gray-700);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
 }
 
-.mobile-toggle:hover {
+.action-btn:hover {
   background-color: var(--gray-100);
+  color: var(--primary);
 }
 
-/* 모바일 메뉴 */
-.mobile-menu {
-  position: fixed;
-  top: 70px;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: var(--white);
-  z-index: 99;
-  transform: translateX(100%);
-  transition: transform var(--transition-normal);
-  overflow-y: auto;
-  padding: 1.5rem;
-}
-
-.mobile-menu.open {
-  transform: translateX(0);
-}
-
-.mobile-menu ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.mobile-menu .nav-link {
+.notification-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: var(--danger);
+  color: white;
+  font-size: 0.7rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
   display: flex;
-  padding: 1rem 0.5rem;
-  font-size: 1.125rem;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.mobile-menu .nav-link i {
-  width: 24px;
-  margin-right: 0.75rem;
+  align-items: center;
+  justify-content: center;
 }
 
 @media (max-width: 768px) {
-  .main-nav {
+  .app-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+  
+  .header-left, .header-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .search-input {
+    width: 100%;
+  }
+  
+  .page-title {
+    font-size: 1.25rem;
+  }
+  
+  .breadcrumb {
     display: none;
   }
 }
