@@ -78,6 +78,9 @@ cd automated-cicd-frontend
 
 # 의존성 설치
 npm install
+npm install @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/vue-fontawesome
+npm install pinia vue-router
+npm install axios
 
 # 개발 서버 실행
 npm run dev
