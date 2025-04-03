@@ -94,14 +94,15 @@ onMounted(() => {
 
 <style>
 .app-sidebar {
+  position: fixed; /* 고정 위치로 변경 */
+  left: 0;
+  top: 0;
   height: 100vh;
   background-color: var(--gray-900);
   color: var(--gray-200);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
-  position: sticky;
-  top: 0;
   z-index: 100;
   width: 250px;
   flex-shrink: 0;

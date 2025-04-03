@@ -1,12 +1,47 @@
-// src/services/deployment.js
+// src/services/deployment.ts
 import api from './api';
+
+// 웹소켓 타입 정의
+interface WebSocketService {
+  subscribeToDeployment: (deploymentId: string) => void;
+  unsubscribeFromDeployment: (deploymentId: string) => void;
+  closeConnection: () => void;
+}
+
+// 배포 관련 타입 정의
+interface DeploymentResponse {
+  id: string;
+  requirementId: string;
+  status: string;
+  overallProgress: number;
+  currentStep: string;
+  startTime: string;
+  completedAt?: string;
+  failedAt?: string;
+  steps: any[];
+  logs: string[];
+  [key: string]: any;
+}
+
+interface WorkflowStatusResponse {
+  requirement: 'pending' | 'in-progress' | 'completed' | 'failed';
+  sourceCode: 'pending' | 'in-progress' | 'completed' | 'failed';
+  cicd: 'pending' | 'in-progress' | 'completed' | 'failed';
+  deployment: 'pending' | 'in-progress' | 'completed' | 'failed';
+}
+
+interface DeploymentStore {
+  currentDeploymentId: string | null;
+  deployments: Record<string, any>;
+  updateDeploymentStatus: (deploymentId: string, status: any) => void;
+}
 
 // 배포 관련 API 서비스
 export const deploymentService = {
   /**
    * 최신 배포 정보 가져오기
    */
-  async getLatestDeployment() {
+  async getLatestDeployment(): Promise<DeploymentResponse> {
     try {
       const response = await api.get('/deployments/latest');
       return response.data;
@@ -20,9 +55,9 @@ export const deploymentService = {
    * 특정 ID의 배포 정보 가져오기
    * @param {string} deploymentId - 배포 ID
    */
-  async getDeploymentById(deploymentId) {
+  async getDeploymentById(deploymentId: string): Promise<DeploymentResponse> {
     try {
-      const response = await api.npget(`/deployments/${deploymentId}`);
+      const response = await api.get(`/deployments/${deploymentId}`);
       return response.data;
     } catch (error) {
       console.error(`배포 ID ${deploymentId}의 정보를 가져오는데 실패했습니다:`, error);
@@ -34,7 +69,7 @@ export const deploymentService = {
    * 새 요구사항에 대한 배포 시작
    * @param {string} requirementId - 요구사항 ID
    */
-  async startDeployment(requirementId) {
+  async startDeployment(requirementId: string): Promise<DeploymentResponse> {
     try {
       const response = await api.post('/deployments', { requirementId });
       return response.data;
@@ -48,7 +83,7 @@ export const deploymentService = {
    * 진행 중인 배포 취소
    * @param {string} deploymentId - 배포 ID
    */
-  async cancelDeployment(deploymentId) {
+  async cancelDeployment(deploymentId: string): Promise<any> {
     try {
       const response = await api.post(`/deployments/${deploymentId}/cancel`);
       return response.data;
@@ -62,7 +97,7 @@ export const deploymentService = {
    * 배포 상태 수동 폴링 (WebSocket이 없는 경우)
    * @param {string} deploymentId - 배포 ID
    */
-  async pollDeploymentStatus(deploymentId) {
+  async pollDeploymentStatus(deploymentId: string): Promise<any> {
     try {
       const response = await api.get(`/deployments/${deploymentId}/status`);
       return response.data;
@@ -77,7 +112,7 @@ export const deploymentService = {
    * @param {string} deploymentId - 배포 ID
    * @returns {Object} 워크플로우 단계별 상태 객체
    */
-  async getWorkflowStatus(deploymentId) {
+  async getWorkflowStatus(deploymentId: string): Promise<WorkflowStatusResponse> {
     try {
       const response = await api.get(`/deployments/${deploymentId}/workflow`);
       return response.data;
@@ -93,11 +128,10 @@ export const deploymentService = {
       };
     }
   },
-
 };
 
 // WebSocket 서비스 설정 예시
-export const setupDeploymentWebSocket = (store) => {
+export const setupDeploymentWebSocket = (store: DeploymentStore): WebSocketService => {
   // WebSocket 연결 설정
   const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${wsProtocol}//${window.location.host}/api/ws/deployments`;
@@ -149,7 +183,7 @@ export const setupDeploymentWebSocket = (store) => {
           // 개별 단계 업데이트 처리
           const deployment = store.deployments[data.deploymentId];
           if (deployment && deployment.steps) {
-            const stepIndex = deployment.steps.findIndex(step => step.id === data.stepId);
+            const stepIndex = deployment.steps.findIndex((step: any) => step.id === data.stepId);
             if (stepIndex !== -1) {
               const updatedSteps = [...deployment.steps];
               updatedSteps[stepIndex] = {
@@ -193,7 +227,7 @@ export const setupDeploymentWebSocket = (store) => {
   // WebSocket 서비스 관련 함수들 반환
   return {
     // 특정 배포 업데이트 구독
-    subscribeToDeployment: (deploymentId) => {
+    subscribeToDeployment: (deploymentId: string) => {
       if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({
           type: 'subscribe',
@@ -203,7 +237,7 @@ export const setupDeploymentWebSocket = (store) => {
     },
     
     // 배포 구독 취소
-    unsubscribeFromDeployment: (deploymentId) => {
+    unsubscribeFromDeployment: (deploymentId: string) => {
       if (socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({
           type: 'unsubscribe',

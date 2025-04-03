@@ -111,8 +111,6 @@ const scrollToTop = () => {
 
 .footer-container {
   width: 100%;
-  max-width: 1320px;
-  margin: 0 auto;
   padding: 3rem 1.5rem 1.5rem;
   position: relative;
 }

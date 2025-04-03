@@ -2,8 +2,10 @@ import { createApp } from 'vue'
 import './style.css'
 import './assets/main.css'
 import App from './App.vue'
-import router from './router'
-import pinia from './store' // Pinia 스토어 import
+import router from './router/router'
+import pinia from './store/store'
+import { dom } from '@fortawesome/fontawesome-svg-core'
+import '@fortawesome/fontawesome-svg-core/styles.css' // CSS 추가
 
 // FontAwesome 설정
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -53,7 +55,7 @@ app.use(router)
 
 // 앱 마운트
 app.mount('#app')
-
+dom.watch()
 // 데모용 데이터 초기화
 const initMockData = async () => {
   try {

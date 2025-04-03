@@ -1,8 +1,10 @@
-// src/services/api.js
+// src/services/api.ts
 import axios from 'axios';
+import type { AxiosInstance, AxiosResponse } from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 
 // API 기본 설정
-const api = axios.create({
+const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || '/api',
   timeout: 30000, // 30초
   headers: {
@@ -13,7 +15,7 @@ const api = axios.create({
 
 // 요청 인터셉터
 api.interceptors.request.use(
-  (config) => {
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
     // JWT 토큰이 있으면 헤더에 추가 (인증 기능 구현 시 주석 해제)
     // const token = localStorage.getItem('auth_token');
     // if (token) {
@@ -21,17 +23,17 @@ api.interceptors.request.use(
     // }
     return config;
   },
-  (error) => {
+  (error: any) => {
     return Promise.reject(error);
   }
 );
 
 // 응답 인터셉터
 api.interceptors.response.use(
-  (response) => {
+  (response: AxiosResponse): AxiosResponse => {
     return response;
   },
-  (error) => {
+  (error: any) => {
     // 인증 오류 처리 (401 Unauthorized)
     if (error.response && error.response.status === 401) {
       // 로그인 페이지로 리다이렉트 또는 토큰 갱신 로직
