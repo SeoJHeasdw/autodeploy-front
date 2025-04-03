@@ -4,7 +4,8 @@
     <div class="dashboard-content">
       <!-- 워크플로우 다이어그램 -->
       <div class="workflow-section">
-        <WorkflowDiagram />
+        <!-- 데모 모드로 워크플로우 다이어그램 표시 (자동 애니메이션 없음) -->
+        <WorkflowDiagram :isDemo="true" :autoAnimate="false" />
       </div>
 
       <!-- 알림 및 빠른 액션 섹션 -->
