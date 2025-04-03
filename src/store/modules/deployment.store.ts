@@ -1,7 +1,7 @@
-// src/store/modules/deployment.ts
+// src/store/modules/deployment.store.ts
 import { defineStore } from 'pinia';
-import mockService from '@/services/mockService';
-import type { Deployment, WorkflowStatus } from '@/services/mockService';
+import mockService from '@/services/mock/mockDataService';
+import type { Deployment, WorkflowStatus } from '@/services/mock/mockDataService';
 
 interface DeploymentState {
   currentDeploymentId: string | null;

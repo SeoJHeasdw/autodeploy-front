@@ -473,8 +473,8 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useRequirementStore } from '@/store/modules/requirement';
-import { useDeploymentStore } from '@/store/modules/deployment';
+import { useRequirementStore } from '@/store/modules/requirement.store';
+import { useDeploymentStore } from '@/store/modules/deployment.store';
 import WorkflowDiagram from '@/components/common/WorkflowDiagram.vue';
 
 const router = useRouter();

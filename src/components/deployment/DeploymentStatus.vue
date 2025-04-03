@@ -223,7 +223,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { useDeploymentStore } from '@/store/modules/deployment';
+import { useDeploymentStore } from '@/store/modules/deployment.store';
 
 const router = useRouter();
 const deploymentStore = useDeploymentStore();

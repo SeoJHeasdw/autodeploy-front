@@ -1,5 +1,5 @@
 // src/services/requirements.ts
-import api from './api';
+import api from './apiClient';
 
 export interface Requirement {
   id: string;

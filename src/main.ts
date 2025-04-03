@@ -39,8 +39,8 @@ library.add(
 )
 
 // 스토어 및 컴포넌트 초기화
-import { useDeploymentStore } from '@/store/modules/deployment'
-import { useRequirementStore } from '@/store/modules/requirement'
+import { useDeploymentStore } from '@/store/modules/deployment.store'
+import { useRequirementStore } from '@/store/modules/requirement.store'
 
 const app = createApp(App)
 

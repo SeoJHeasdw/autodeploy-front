@@ -1,7 +1,7 @@
-// src/store/modules/requirement.ts
+// src/store/modules/requirement.store.ts
 import { defineStore } from 'pinia';
-import mockService from '@/services/mockService';
-import type { Requirement, QueryParams } from '@/services/mockService';
+import mockService from '@/services/mock/mockDataService';
+import type { Requirement, QueryParams } from '@/services/mock/mockDataService';
 
 interface RequirementState {
   requirements: Requirement[];

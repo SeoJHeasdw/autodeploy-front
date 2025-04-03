@@ -5,57 +5,57 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('@/views/Home.vue'),
+    component: () => import('@/pages/HomePage.vue'),
     meta: { title: '대시보드' }
   },
   {
     path: '/requirements',
     name: 'Requirements',
-    component: () => import('@/views/Requirements.vue'),
+    component: () => import('@/pages/requirements/RequirementFormPage.vue'),
     meta: { title: '요구사항 관리' }
   },
   {
     path: '/requirements/new',
     name: 'NewRequirement',
-    component: () => import('@/views/RequirementForm.vue'),
+    component: () => import('@/pages/requirements/RequirementFormPage.vue'),
     meta: { title: '새 요구사항 등록' }
   },
   {
     path: '/requirements/:id',
     name: 'RequirementDetail',
-    component: () => import('@/views/RequirementDetail.vue'),
+    component: () => import('@/pages/requirements/RequirementDetailPage.vue'),
     props: true,
     meta: { title: '요구사항 상세' }
   },
   {
     path: '/deployments',
     name: 'Deployments',
-    component: () => import('@/views/Deployments.vue'),
+    component: () => import('@/pages/deployments/DeploymentPage.vue'),
     meta: { title: '배포 관리' }
   },
   {
     path: '/deployments/:id',
     name: 'DeploymentDetail',
-    component: () => import('@/views/DeploymentDetail.vue'),
+    component: () => import('@/pages/deployments/DeploymentDetailPage.vue'),
     props: true,
     meta: { title: '배포 상세' }
   },
   {
     path: '/analytics',
     name: 'Analytics',
-    component: () => import('@/views/Analytics.vue'),
+    component: () => import('@/pages/AnalyticsPage.vue'),
     meta: { title: '분석 및 통계' }
   },
   {
     path: '/settings',
     name: 'Settings',
-    component: () => import('@/views/Settings.vue'),
+    component: () => import('@/pages/SettingsPage.vue'),
     meta: { title: '시스템 설정' }
   },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
-    component: () => import('@/views/NotFound.vue'),
+    component: () => import('@/pages/NotFoundPage.vue'),
     meta: { title: '페이지를 찾을 수 없습니다' }
   }
 ];

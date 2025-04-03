@@ -56,7 +56,7 @@
   
   <script setup>
   import { ref } from 'vue';
-  import { useRequirementStore } from '@/store/modules/requirement';
+  import { useRequirementStore } from '@/store/modules/requirement.store';
   
   const requirementStore = useRequirementStore();
   

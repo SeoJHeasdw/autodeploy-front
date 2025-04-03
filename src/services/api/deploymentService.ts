@@ -1,5 +1,5 @@
 // src/services/deployment.ts
-import api from './api';
+import api from './apiClient';
 
 // 웹소켓 타입 정의
 interface WebSocketService {
