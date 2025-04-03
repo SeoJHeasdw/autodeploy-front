@@ -1,48 +1,50 @@
 <template>
   <header class="app-header">
-    <div class="header-left">
-      <div class="page-info">
-        <h1 class="page-title">{{ currentPageTitle }}</h1>
-        <div class="breadcrumb" v-if="breadcrumbs.length > 0">
-          <span v-for="(crumb, index) in breadcrumbs" :key="index">
-            <span v-if="index > 0" class="breadcrumb-separator">
-              <i class="fas fa-chevron-right"></i>
+    <div class="header-content">
+      <div class="header-left">
+        <div class="page-info">
+          <h1 class="page-title">{{ currentPageTitle }}</h1>
+          <div class="breadcrumb" v-if="breadcrumbs.length > 0">
+            <span v-for="(crumb, index) in breadcrumbs" :key="index">
+              <span v-if="index > 0" class="breadcrumb-separator">
+                <i class="fas fa-chevron-right"></i>
+              </span>
+              <router-link v-if="crumb.path && index < breadcrumbs.length - 1" :to="crumb.path">
+                {{ crumb.name }}
+              </router-link>
+              <span v-else>{{ crumb.name }}</span>
             </span>
-            <router-link v-if="crumb.path && index < breadcrumbs.length - 1" :to="crumb.path">
-              {{ crumb.name }}
-            </router-link>
-            <span v-else>{{ crumb.name }}</span>
-          </span>
-        </div>
-      </div>
-    </div>
-
-    <div class="header-right">
-      <div class="search-container">
-        <div class="search-input">
-          <i class="fas fa-search"></i>
-          <input type="text" placeholder="검색..." />
+          </div>
         </div>
       </div>
 
-      <div class="header-actions">
-        <button class="action-btn" title="도움말">
-          <i class="fas fa-question-circle"></i>
-        </button>
-        
-        <button class="action-btn" title="알림">
-          <i class="fas fa-bell"></i>
-          <span class="notification-badge">3</span>
-        </button>
-        
-        <button class="action-btn" @click="toggleTheme" title="테마 변경">
-          <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
-        </button>
-        
-        <router-link to="/requirements/new" class="btn btn-primary btn-icon">
-          <i class="fas fa-plus"></i>
-          <span>새 요구사항</span>
-        </router-link>
+      <div class="header-right">
+        <div class="search-container">
+          <div class="search-input">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="검색..." />
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button class="action-btn" title="도움말">
+            <i class="fas fa-question-circle"></i>
+          </button>
+          
+          <button class="action-btn" title="알림">
+            <i class="fas fa-bell"></i>
+            <span class="notification-badge">3</span>
+          </button>
+          
+          <button class="action-btn" @click="toggleTheme" title="테마 변경">
+            <i class="fas" :class="isDarkMode ? 'fa-sun' : 'fa-moon'"></i>
+          </button>
+          
+          <router-link to="/requirements/new" class="btn btn-primary btn-icon">
+            <i class="fas fa-plus"></i>
+            <span>새 요구사항</span>
+          </router-link>
+        </div>
       </div>
     </div>
   </header>
@@ -136,17 +138,24 @@ onMounted(() => {
 
 <style>
 .app-header {
-  padding: 1rem 1.5rem;
   background-color: var(--white);
   border-bottom: 1px solid var(--gray-200);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 10;
   width: 100%;
+  height: 70px; /* 고정된 높이 설정 */
+  display: flex;
+  align-items: center;
+}
+
+.header-content {
+  width: 100%;
+  padding: 0 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .header-left, .header-right {
@@ -196,15 +205,17 @@ onMounted(() => {
 .search-input {
   position: relative;
   width: 250px;
+  display: flex;
+  align-items: center;
 }
 
 .search-input input {
   width: 100%;
-  padding: 0.5rem 0.75rem 0.5rem 2.25rem;
   border: 1px solid var(--gray-300);
   border-radius: 4px;
   font-size: 0.875rem;
   transition: all 0.2s ease;
+  margin-left: 15px;
 }
 
 .search-input input:focus {
@@ -215,11 +226,16 @@ onMounted(() => {
 
 .search-input i {
   position: absolute;
-  left: 0.75rem;
+  left: 1.25rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--gray-500);
+  z-index: 1;
+  pointer-events: none;
 }
+
+
+
 
 .header-actions {
   display: flex;
@@ -265,6 +281,10 @@ onMounted(() => {
 
 @media (max-width: 768px) {
   .app-header {
+    height: auto;
+  }
+  
+  .header-content {
     flex-direction: column;
     gap: 0.75rem;
     padding: 0.75rem;

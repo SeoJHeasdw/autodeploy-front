@@ -104,7 +104,6 @@ const scrollToTop = () => {
 .app-footer {
   background-color: var(--gray-900);
   color: var(--gray-300);
-  padding: 0;
   width: 100%;
   margin-top: auto; /* 푸터를 페이지 하단에 고정 */
 }

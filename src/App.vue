@@ -4,7 +4,9 @@
     <div class="main-wrapper">
       <AppHeader />
       <main class="main-content">
-        <router-view />
+        <div class="content-container">
+          <router-view />
+        </div>
       </main>
       <AppFooter />
     </div>
@@ -30,7 +32,6 @@ onMounted(() => {
   background-color: var(--background);
 }
 
-/* App.vue 스타일 수정 */
 .main-wrapper {
   flex: 1;
   display: flex;
@@ -47,12 +48,31 @@ onMounted(() => {
   width: calc(100% - 70px); /* 접힌 사이드바 너비 반영 */
 }
 
-/* main-content는 그대로 유지 */
+/* main-content는 전체 너비를 차지하도록 변경 */
 .main-content {
   flex: 1;
-  padding: 1.5rem;
   width: 100%;
-  max-width: 1280px; /* 최대 너비 제한 유지 */
-  margin: 0 auto; /* 가운데 정렬 유지 */
+  padding: 1.5rem;
+  overflow-x: auto;
 }
+
+/* 실제 컨텐츠는 content-container 안에서 중앙 정렬 */
+.content-container {
+  max-width: 1280px; 
+  margin: 0 auto;
+}
+
+/* 미디어 쿼리 추가 */
+@media (max-width: 768px) {
+  .main-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+  
+  .app-sidebar.collapsed + .main-wrapper {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
 </style>
