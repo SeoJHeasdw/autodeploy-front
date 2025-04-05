@@ -182,7 +182,7 @@
       <i class="fas fa-exclamation-circle error-icon"></i>
       <h2>요구사항을 불러올 수 없습니다</h2>
       <p>{{ error }}</p>
-      <router-link to="/deployments" class="btn-primary">
+      <router-link to="/deployments" variant="primary">
         배포 목록으로 돌아가기
       </router-link>
     </div>
@@ -199,7 +199,7 @@
           <p class="warning-text">이 작업은 되돌릴 수 없습니다.</p>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="showCancelModal = false">취소</button>
+          <Button variant="secondary" @click="showCancelModal = false">취소</button>
           <button class="btn-danger" @click="cancelDeployment">확인</button>
         </div>
       </div>
@@ -846,50 +846,6 @@ watch(deploymentLogs, () => {
 .header-actions {
   display: flex;
   gap: 0.75rem;
-}
-
-.btn-primary, .btn-secondary, .btn-danger {
-  padding: 0.6rem 1rem;
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  text-decoration: none;
-}
-
-.btn-primary {
-  background-color: var(--primary);
-  color: white;
-  border: none;
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-dark);
-}
-
-.btn-secondary {
-  background-color: var(--white);
-  border: 1px solid var(--gray-300);
-  color: var(--gray-700);
-}
-
-.btn-secondary:hover {
-  background-color: var(--gray-100);
-  border-color: var(--gray-400);
-}
-
-.btn-danger {
-  background-color: var(--danger);
-  color: white;
-  border: none;
-}
-
-.btn-danger:hover {
-  background-color: #d32f2f;
 }
 
 /* 로딩 상태 */

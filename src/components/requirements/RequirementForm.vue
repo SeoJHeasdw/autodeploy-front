@@ -43,12 +43,12 @@
         </div>
         
         <div class="form-actions">
-          <button type="button" class="btn-secondary" @click="resetForm">
+          <Button variant="btn-primary" @click="resetForm">
             초기화
-          </button>
-          <button type="submit" class="btn-primary">
+          </Button>
+          <Button variant="primary">
             요구사항 제출
-          </button>
+          </Button>
         </div>
       </form>
     </div>
@@ -139,21 +139,4 @@
     transition: background-color 0.2s;
   }
   
-  .btn-primary {
-    background-color: #4CAF50;
-    color: white;
-  }
-  
-  .btn-primary:hover {
-    background-color: #45a049;
-  }
-  
-  .btn-secondary {
-    background-color: #f1f1f1;
-    color: #333;
-  }
-  
-  .btn-secondary:hover {
-    background-color: #e0e0e0;
-  }
   </style>
