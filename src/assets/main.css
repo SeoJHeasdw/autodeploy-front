@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* 모던 디자인 시스템 - src/assets/main.css */
 
 :root {
